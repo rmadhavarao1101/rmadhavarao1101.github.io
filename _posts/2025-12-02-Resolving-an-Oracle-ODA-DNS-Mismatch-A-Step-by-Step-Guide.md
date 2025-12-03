@@ -209,7 +209,7 @@ When odacli reports outdated DNS servers while the OS uses updated resolvers, th
 
 References and further reading
 ------------------------------
-- Oracle Database Appliance documentation (refer to your version-specific guides).
+- Oracle Database Appliance documentation (refer to your version-specific guides / Doc ID 2796053.1).
 - Oracle support advisories — consult My Oracle Support for known issues and best practices.
 
 <!-- Editor: GitHub Copilot Chat Assistant -->
