@@ -1,0 +1,169 @@
+
+Resolving an Oracle ODA DNS Mismatch: A Step-by-Step Guide
+
+
+When managing an Oracle Database Appliance (ODA), maintaining consistent network configurations across all management tools is crucial for smooth operations. A common issue arises when you update the DNS settings at the OS level (in /etc/resolv.conf) but the ODA's internal configuration repository, managed by the DCS (Database Cloud Service) agent, still holds the old values.
+
+This blog post outlines how to correct this mismatch by manually updating the internal ODA configuration database using the mysql client, ensuring that odacli describe-system reports the correct, current DNS servers.
+
+Disclaimer: Modifying the internal ODA configuration database directly should be done with extreme caution and ideally after consulting Oracle support documentation or creating a full backup of your system configuration.
+
+1. Verifying the Current DNS Settings
+
+The first step is to check the current configuration using the standard ODA command-line interface (odacli).
+
+[root@odadb01 ~]# odacli describe-system
+Appliance Information
+----------------------------------------------------------------
+              ID: ddummy9-000f-14ha-oracl-jkd8dj3jk29d39
+               Platform: X8-2M
+System Information
+----------------------------------------------------------------
+            Name: odadb01
+            Domain Name: overpass.net
+            Time Zone: America/NewYork
+            DB Edition: EE
+            DNS Servers: 10.5.4.6 10.5.1.3 10.5.4.7  <-- These are the old IPs
+            NTP Servers: 10.5.1.8
+
+In this output, we clearly see the old DNS servers: 10.5.4.6, 10.5.1.3, and 10.5.4.7.
+
+2. Changing the OS-Level DNS Configuration
+
+To temporarily resolve network issues, you likely already updated the OS configuration file /etc/resolv.conf using a text editor like vi.
+
+[root@odadb01 ~]# vi /etc/resolv.conf
+# Contents of /etc/resolv.conf
+search bridge.net
+#nameserver 10.5.4.6  <-- Commented out old IPs
+#nameserver 10.5.4.7
+#nameserver 10.5.1.3
+nameserver 10.15.0.1  <-- Added new IPs
+nameserver 10.15.0.2
+
+3. Verify DNS Lookups are Working Correctly
+
+Confirm that the OS is successfully using the new DNS servers for name resolution:
+
+[root@odadb01 ~]# nslookup odadb01
+Server:         10.15.0.1  <-- Confirming the new server is used
+Address:       10.15.0.1#53
+Name:   odadb01.bridge.net
+Address: 10.4.1.1
+
+The lookups work, confirming the changes in /etc/resolv.conf are active at the OS level.
+
+4. Acknowledge the Configuration Mismatch
+
+Even though OS lookups work, odacli describe-system still reports the old addresses:
+
+[root@odadb01 ~]# odacli describe-system|grep "Name:\|Servers"
+            Name: odadb01
+            Domain Name: overpass.net
+            DNS Servers: 10.5.4.6 10.5.1.3 10.5.4.7  <-- Still showing old IPs
+            NTP Servers: 10.5.1.8
+
+This mismatch means the ODA's internal repository needs a manual update to reflect the actual state of the system.
+
+5. Manually Update the ODA Metadata Database (DCS Agent DB)
+
+This is the critical step to synchronize the ODA configuration. You will access the internal MySQL database that stores all ODA metadata.
+
+5a. Access the MySQL Database
+
+Connect to the internal MySQL instance using the ODA-provided utility script and configuration file:
+[root@odadb01 ~]# /opt/oracle/dcs/mysql/bin/mysql --defaults-file=/opt/oracle/dcs/mysql/etc/mysqldb.cnf
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+...
+mysql>
+
+5b. Select the Database and Fetch System ID
+
+Switch to the dcsagentdb and find the unique system ID for your appliance:
+
+mysql> USE dcsagentdb;
+Database changed
+mysql> select id, name from SysInstance;
++--------------------------------------+-----------+
+| id | name |
++--------------------------------------+-----------+
+| ddummy9-000f-14ha-oracl-jkd8dj3jk29d39 | odadb01 |
++--------------------------------------+-----------+
+1 row in set (0.00 sec)
+The system ID is 'ddummy9-000f-14ha-oracl-jkd8dj3jk29d39'.
+
+5c. Verify Current Entries in the Database
+
+Confirm the current, stale DNS server entries recorded internally:
+mysql> select * from SysInstance_dnsServers where 
+SysInstance_id='ddummy9-000f-14ha-oracl-jkd8dj3jk29d39';
++--------------------------------------+------------+
+| SysInstance_id | dnsServers |
++--------------------------------------+------------+
+| ddummy9-000f-14ha-oracl-jkd8dj3jk29d39 | 10.5.4.6 |
+| ddummy9-000f-14ha-oracl-jkd8dj3jk29d39 | 10.5.1.3 |
+| ddummy9-000f-14ha-oracl-jkd8dj3jk29d39 | 10.5.4.7 |
++--------------------------------------+------------+
+3 rows in set (0.00 sec)
+
+5d. Backup the Table
+
+Before making changes, always back up the table you are about to modify:
+
+mysql> CREATE TABLE SysInstance_dnsServers_BACKUP_YYYYMMDD AS SELECT * FROM SysInstance_dnsServers;
+Query OK, 3 rows affected (0.01 sec)
+
+5e. Insert New DNS Server IPs
+
+Add the new, correct DNS server IP addresses into the table:
+mysql> insert into SysInstance_dnsServers values ('ddummy9-000f-14ha-oracl-jkd8dj3jk29d39','10.15.0.1');
+Query OK, 1 row affected (0.01 sec)
+mysql> insert into SysInstance_dnsServers values ('ddummy9-000f-14ha-oracl-jkd8dj3jk29d39','10.15.0.2');
+Query OK, 1 row affected (0.00 sec)
+
+5f. Delete the Old DNS Servers
+Remove the outdated IP addresses from the database:
+mysql> delete from SysInstance_dnsServers where SysInstance_id = 'ddummy9-000f-14ha-oracl-jkd8dj3jk29d39' and dnsServers = '10.5.4.6';
+Query OK, 1 row affected (0.00 sec)
+mysql> delete from SysInstance_dnsServers where SysInstance_id = 'ddummy9-000f-14ha-oracl-jkd8dj3jk29d39' and dnsServers = '10.5.4.7';
+Query OK, 1 row affected (0.00 sec)
+mysql> delete from SysInstance_dnsServers where SysInstance_id = 'ddummy9-000f-14ha-oracl-jkd8dj3jk29d39' and dnsServers = '10.5.1.3';
+Query OK, 1 row affected (0.00 sec)
+
+5g. Verify the Database Table Now Reflects the New IPs
+
+Check the database one last time to ensure only the correct new IPs remain:
+mysql> select * from SysInstance_dnsServers where SysInstance_id='ddummy9-000f-14ha-oracl-jkd8dj3jk29d39';
++--------------------------------------+------------+
+| SysInstance_id | dnsServers |
++--------------------------------------+------------+
+| ddummy9-000f-14ha-oracl-jkd8dj3jk29d39 | 10.15.0.1 |
+| ddummy9-000f-14ha-oracl-jkd8dj3jk29d39 | 10.15.0.2 |
++--------------------------------------+------------+
+2 rows in set (0.00 sec)
+
+6. Validate that 'odacli' is updated 
+
+The 'odacli' commands should now read the correct information from the synchronized database. Run `odacli describe-system` again:
+
+[root@odadb01 ~]# odacli describe-system
+
+Appliance Information
+----------------------------------------------------------------
+...
+System Information
+----------------------------------------------------------------
+                   Name: odadb01
+            Domain Name: overpass.net
+              Time Zone: America/Halifax
+             DB Edition: EE
+            DNS Servers: 10.15.0.1 10.15.0.2  <-- SUCCESSFULLY UPDATED
+            NTP Servers: 10.5.1.8
+...
+
+The ODA system configuration is now consistent across the OS and the internal management database.
+In conclusion, maintaining consistency between the operating system's network configuration files (like /etc/resolv.conf) and the Oracle Database Appliance's internal metadata repository (the DCS Agent database) is crucial for correct system operation.
+
+When standard ODA management commands fail to update the system configuration correctly, a manual synchronization is required. By carefully accessing the internal MySQL database (dcsagentdb), system administrators can directly insert the new DNS server information and remove stale entries.
+
+Following the detailed steps outlined above ensures that all ODA tools, including odacli describe-system, report the accurate system state, thereby preventing configuration mismatches that might hinder future management operations or automated Oracle support tasks. Always proceed with caution when editing internal databases and ensure appropriate backups are in place.
