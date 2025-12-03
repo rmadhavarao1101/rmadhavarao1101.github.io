@@ -1,12 +1,5 @@
 ---
-layout: post
 title: "Resolving an Oracle ODA DNS Mismatch: A Step-by-Step Guide"
-date: 2025-12-03
-author: "rmadhavarao1101"
-editor: "GitHub Copilot Chat Assistant"
-categories: [Oracle, ODA, sysadmin, networking]
-tags: [ODA, Oracle, DNS, MySQL, how-to]
-excerpt: "A concise, safe procedure to synchronize the Oracle Database Appliance (ODA) internal metadata with the operating system DNS configuration when odacli reports stale DNS entries."
 ---
 
 Problem
