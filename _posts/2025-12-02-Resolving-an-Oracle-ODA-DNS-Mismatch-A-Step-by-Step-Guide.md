@@ -1,13 +1,9 @@
-----------------
 Resolving an Oracle ODA DNS Mismatch: A Step-by-Step Guide
-----------------
 
-Problem
--------
-When administering an Oracle Database Appliance (ODA), you may update the OS-level DNS servers (for example, /etc/resolv.conf) but find that odacli describe-system still reports the old DNS server addresses. This indicates a mismatch between the OS network configuration and the ODA internal metadata (the DCS agent database). When ODA management commands do not correctly reflect network changes, you can manually update the internal database to restore consistency.
+<h2 class="heading-blue">Problem</h2>
+When administering an Oracle Database Appliance (ODA), you may update the OS-level DNS servers (for example, /etc/resolv.conf) but find that odacli describe-system still reports the old DNS server add[...] 
 
-Important disclaimer
---------------------
+<h2 class="heading-orange">Important disclaimer</h2>
 Modifying ODA internal databases directly is risky. Only proceed after:
 - Taking a full backup (or at minimum backing up affected tables).
 - Consulting Oracle support / your change management process if this is a production system.
@@ -15,15 +11,13 @@ Modifying ODA internal databases directly is risky. Only proceed after:
 
 This guide documents a careful, step-by-step approach — ensure you understand each command before executing it.
 
-Prerequisites
--------------
+<h2 class="heading-blue">Prerequisites</h2>
 - Root or equivalent access to the ODA appliance.
 - Access to the internal dcsagentdb MySQL instance (the DCS agent DB).
 - Familiarity with basic MySQL commands and SQL transactions.
 - Backup plan in place.
 
-Step 1 — Verify the current ODA configuration
----------------------------------------------
+<h2 class="step-heading">Step 1 — Verify the current ODA configuration</h2>
 Run odacli to see what the appliance reports:
 
 ```sh
@@ -43,8 +37,7 @@ System Information
        NTP Servers: 10.5.1.8
 ```
 
-Step 2 — Confirm OS-level DNS is updated
-----------------------------------------
+<h2 class="step-heading">Step 2 — Confirm OS-level DNS is updated</h2>
 Check /etc/resolv.conf to ensure the OS is using the new DNS servers. Editing was likely performed already:
 
 ```sh
@@ -69,8 +62,7 @@ Address:        10.4.1.1
 
 If OS-level lookups are working but odacli still shows old DNS entries, proceed to update the internal database.
 
-Step 3 — Access the ODA internal MySQL (dcsagentdb)
----------------------------------------------------
+<h2 class="step-heading">Step 3 — Access the ODA internal MySQL (dcsagentdb)</h2>
 Connect to the appliance's internal MySQL instance using the supplied MySQL binary and defaults file:
 
 ```sh
@@ -79,8 +71,7 @@ Welcome to the MySQL monitor.  Commands end with ; or \g.
 mysql>
 ```
 
-Step 4 — Locate the appliance’s system ID
------------------------------------------
+<h2 class="step-heading">Step 4 — Locate the appliance’s system ID</h2>
 Switch to the dcsagentdb and identify the SysInstance entry for this appliance:
 
 ```sql
@@ -96,8 +87,7 @@ mysql> SELECT id, name FROM SysInstance;
 
 Make a note of the `id` value (the unique system ID) — you will use it in subsequent queries.
 
-Step 5 — Inspect the DNS entries recorded internally
-----------------------------------------------------
+<h2 class="step-heading">Step 5 — Inspect the DNS entries recorded internally</h2>
 View the current entries in the SysInstance_dnsServers table for the appliance:
 
 ```sql
@@ -112,8 +102,7 @@ mysql> SELECT * FROM SysInstance_dnsServers WHERE SysInstance_id = 'ddummy9-000f
 3 rows in set (0.00 sec)
 ```
 
-Step 6 — Back up the table before changes
------------------------------------------
+<h2 class="step-heading">Step 6 — Back up the table before changes</h2>
 Always take a backup of the table you plan to modify:
 
 ```sql
@@ -123,8 +112,7 @@ Query OK, 3 rows affected (0.01 sec)
 
 Adjust the backup table name (`YYYYMMDD`) to match the date/time you perform this operation.
 
-Step 7 — Insert the new DNS entries
------------------------------------
+<h2 class="step-heading">Step 7 — Insert the new DNS entries</h2>
 Add the correct DNS server IPs into the table:
 
 ```sql
@@ -135,8 +123,7 @@ mysql> INSERT INTO SysInstance_dnsServers VALUES ('ddummy9-000f-14ha-oracl-jkd8d
 Query OK, 1 row affected (0.00 sec)
 ```
 
-Step 8 — Remove the old / stale DNS entries
--------------------------------------------
+<h2 class="step-heading">Step 8 — Remove the old / stale DNS entries</h2>
 Delete the outdated IP addresses from the table:
 
 ```sql
@@ -156,8 +143,7 @@ mysql> DELETE FROM SysInstance_dnsServers
 Query OK, 1 row affected (0.00 sec)
 ```
 
-Step 9 — Verify the table now contains only the new IPs
--------------------------------------------------------
+<h2 class="step-heading">Step 9 — Verify the table now contains only the new IPs</h2>
 Confirm the database reflects the intended configuration:
 
 ```sql
@@ -171,8 +157,7 @@ mysql> SELECT * FROM SysInstance_dnsServers WHERE SysInstance_id = 'ddummy9-000f
 2 rows in set (0.00 sec)
 ```
 
-Step 10 — Validate via odacli
------------------------------
+<h2 class="step-heading">Step 10 — Validate via odacli</h2>
 Exit MySQL and run odacli describe-system again to confirm the appliance now reports the updated DNS servers:
 
 ```sh
@@ -196,19 +181,16 @@ If odacli still shows stale values:
 - Confirm there are no cached copies or management agents that need a restart.
 - Consult Oracle support if the appliance does not reflect the database changes after verification.
 
-Post-change checks and best practices
-------------------------------------
+<h2 class="heading-orange">Post-change checks and best practices</h2>
 - Keep the backup table (created earlier) for a reasonable retention period before dropping it.
 - Log the change (who, when, justification, commands run).
 - If possible, replicate the steps in a non-production environment first.
 - Consider opening a support ticket with Oracle for guidance — direct DB edits are generally a last resort.
 
-Summary
--------
-When odacli reports outdated DNS servers while the OS uses updated resolvers, the root cause is typically a mismatch between the OS and the ODA internal DCS agent DB. Carefully updating the SysInstance_dnsServers table in dcsagentdb synchronizes the internal metadata and resolves the discrepancy. Always back up the table, document the change, and consult Oracle support for production-critical systems.
+<h2 class="heading-blue">Summary</h2>
+When odacli reports outdated DNS servers while the OS uses updated resolvers, the root cause is typically a mismatch between the OS and the ODA internal DCS agent DB. Carefully updating the SysInstanc[...] 
 
-References and further reading
-------------------------------
+<h2 class="heading-muted">References and further reading</h2>
 - Oracle Database Appliance documentation (refer to your version-specific guides / Doc ID 2796053.1).
 - Oracle support advisories — consult My Oracle Support for known issues and best practices.
 
