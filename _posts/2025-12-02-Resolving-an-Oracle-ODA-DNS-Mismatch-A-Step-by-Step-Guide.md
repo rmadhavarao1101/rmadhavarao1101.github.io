@@ -1,5 +1,6 @@
+----------------
 Resolving an Oracle ODA DNS Mismatch: A Step-by-Step Guide
-
+----------------
 <h2 class="heading-blue">Problem</h2>
 When administering an Oracle Database Appliance (ODA), you may update the OS-level DNS servers (for example, /etc/resolv.conf) but find that odacli describe-system still reports the old DNS server add[...] 
 
