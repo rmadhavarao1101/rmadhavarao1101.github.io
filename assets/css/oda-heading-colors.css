@@ -1,0 +1,7 @@
+/* Add this file and include it in your site's head (or merge into your main stylesheet).
+   Example: <link rel="stylesheet" href="/assets/css/oda-heading-colors.css"> in _includes/head.html */
+
+.heading-blue { color: #1e88e5; }      /* primary blue for main sections */
+.heading-orange { color: #ff7043; }    /* orange for warnings/important blocks */
+.heading-muted { color: #6c757d; }     /* muted color for references / low-importance headings */
+.step-heading { color: #2e7d32; }      /* green for step headings */
