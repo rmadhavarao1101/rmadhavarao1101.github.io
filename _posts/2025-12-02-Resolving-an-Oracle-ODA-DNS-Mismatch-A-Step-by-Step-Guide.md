@@ -1,9 +1,6 @@
 <h1>Resolving an Oracle ODA DNS Mismatch: A Step-by-Step Guide</h1>
 
----
-title: "Resolving an Oracle ODA DNS Mismatch: A Step-by-Step Guide"
-alt_title: "Resolving an Oracle ODA DNS Mismatch: A Step-by-Step Guide"
----
+
 
 
 
