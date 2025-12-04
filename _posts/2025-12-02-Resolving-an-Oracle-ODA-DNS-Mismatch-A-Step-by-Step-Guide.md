@@ -1,6 +1,6 @@
-----------------
-Resolving an Oracle <span style="text-transform:uppercase;">ODA DNS</span> Mismatch: A Step-by-Step Guide
-----------------
+---
+title: "Resolving an Oracle ODA DNS Mismatch: A Step-by-Step Guide"
+---
 
 Problem
 -------
