@@ -1,5 +1,5 @@
 ----------------
-Resolving an Oracle ODA <span style="text-transform:uppercase;">DNS</span> Mismatch: A Step-by-Step Guide
+Resolving an Oracle <span style="text-transform:uppercase;">ODA DNS</span> Mismatch: A Step-by-Step Guide
 ----------------
 
 Problem
