@@ -1,8 +1,4 @@
-<h1>Resolving an Oracle ODA DNS Mismatch: A Step-by-Step Guide</h1>
-
-
-
-
+## Resolving an Oracle ODA DNS Mismatch: A Step-by-Step Guide
 
 
 Problem
