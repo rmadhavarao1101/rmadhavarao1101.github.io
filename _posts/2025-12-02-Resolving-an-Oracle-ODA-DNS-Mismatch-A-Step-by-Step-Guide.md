@@ -1,6 +1,5 @@
----
-title: "Resolving an Oracle ODA DNS Mismatch: A Step-by-Step Guide"
----
+## Title "Resolving an Oracle ODA DNS Mismatch: A Step-by-Step Guide"
+
 
 Problem
 -------
