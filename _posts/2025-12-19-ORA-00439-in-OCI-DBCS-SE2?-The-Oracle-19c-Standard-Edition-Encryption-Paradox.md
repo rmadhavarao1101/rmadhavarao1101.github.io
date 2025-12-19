@@ -10,7 +10,8 @@ This is where the paradox begins. TDE is historically an Enterprise Edition (EE)
 This post details a specific bug that causes the dreaded ORA-00439 error in 19c SE2 environments and provides the definitive solution.
 
 1. Environment and Initial Encryption Check
----
+-------------------------------------------
+
 We are running a typical OCI DBCS Standard Edition 2 instance.
 
 A. Database Version
@@ -65,7 +66,7 @@ FILE                 /opt/oracle/dcs/commonstore/wallets/vcccdb_rtn_yyz OPEN    
 The expectation: Since encryption is mandated, active, and the wallet is open, creating a new tablespace should work and be encrypted by default.
 
 2. The Failure: ORA-00439
---
+-------------------------
 
 When attempting to create a new tablespace (TEST), we hit an unexpected wall:
 
@@ -94,7 +95,7 @@ AUTOEXTEND ON NEXT 256M MAXSIZE UNLIMITED...
 This error is highly confusing: How can TDE be not enabled when the tablespaces are encrypted and the wallet is open?
 
 3. The Root Cause: Oracle Bug 37740291
----
+--------------------------------------
 
 The problem lies not in your configuration, but in a known defect within the Standard Edition 2 codebase concerning TDE validation in cloud environments.
 
@@ -112,7 +113,7 @@ Note: Oracle has explicitly stated that for this bug, the WORKAROUND is NONE. Th
 ---
 
 4. The Resolution: Applying the DB Release Update
----
+---------------------------------------------------
 To fix this specific issue, you must apply the Database Release Update (RU) that includes the patch for Bug 37740291.
 
 A. The Fix Version
@@ -169,7 +170,7 @@ TEST                           YES
 ```
 
 Conclusion
-----
+------
 
 Encountering the ORA-00439 TDE error in an Oracle Cloud SE2 environment is confusing, but it's important to remember that this behavior is often due to product-specific bugs related to cloud feature enablement, not configuration errors.
 
