@@ -10,7 +10,7 @@ This is where the paradox begins. TDE is historically an Enterprise Edition (EE)
 This post details a specific bug that causes the dreaded ORA-00439 error in 19c SE2 environments and provides the definitive solution.
 
 1. Environment and Initial Encryption Check
----   
+---
 We are running a typical OCI DBCS Standard Edition 2 instance.
 
 A. Database Version
@@ -24,6 +24,7 @@ BANNER_FULL
 --------------------------------------------------------------------------------
 Oracle Database 19c Standard Edition 2 Release 19.0.0.0.0 - Production
 Version 19.21.0.0.0
+```
 
 B. Tablespace Encryption Status
 --
@@ -41,6 +42,7 @@ SYSAUX                         YES
 UNDOTBS1                       YES
 USERS                          YES
 TEMP                           YES
+```
 
 C. TDE Wallet Status
 --
@@ -58,6 +60,8 @@ WRL_TYPE             WRL_PARAMETER                                      STATUS  
 FILE                 /opt/oracle/dcs/commonstore/wallets/vcccdb_rtn_yyz OPEN                           AUTOLOGIN            SINGLE    NONE     NO                 1
                      /tde/
 ... (other entries)
+```
+
 The expectation: Since encryption is mandated, active, and the wallet is open, creating a new tablespace should work and be encrypted by default.
 
 2. The Failure: ORA-00439
@@ -74,6 +78,8 @@ CREATE TABLESPACE TEST
 *
 ERROR at line 1:
 ORA-00439: feature not enabled: Transparent Data Encryption
+```
+```sh
 The Alert Log confirms the error:
 
 2025-12-18T07:41:05.176777-08:00
@@ -83,6 +89,7 @@ AUTOEXTEND ON NEXT 256M MAXSIZE UNLIMITED
 ORA-439 signalled during: CREATE TABLESPACE TEST
 DATAFILE '+DATA' SIZE 256M
 AUTOEXTEND ON NEXT 256M MAXSIZE UNLIMITED...
+```
 
 This error is highly confusing: How can TDE be not enabled when the tablespaces are encrypted and the wallet is open?
 
@@ -127,7 +134,10 @@ BANNER_FULL
 --------------------------------------------------------------------------------
 Oracle Database 19c Standard Edition 2 Release 19.0.0.0.0 - Production
 Version 19.28.0.0.0
+```
+
 C. The Successful Tablespace Creation
+--
 With the patched version, the tablespace creation command now executes successfully, as expected:
 
 ```sql
@@ -138,6 +148,7 @@ DATAFILE '+DATA' SIZE 256M
 AUTOEXTEND ON NEXT 256M MAXSIZE UNLIMITED;
 
 Tablespace created.
+```
 
 The final check confirms that the new tablespace is also created with default encryption enabled, maintaining OCI's security posture:
 
@@ -155,6 +166,7 @@ TEMP                           YES
 TEST                           YES
 
 6 rows selected.
+```
 
 Conclusion
 ----
