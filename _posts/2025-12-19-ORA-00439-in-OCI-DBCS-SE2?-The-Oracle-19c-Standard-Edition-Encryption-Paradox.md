@@ -11,15 +11,15 @@ This post details a specific bug that causes the dreaded ORA-00439 error in 19c 
 
 
 
-1. Environment and Initial Encryption Check
----
+### 1. Environment and Initial Encryption Check
+
 
 
 
 We are running a typical OCI DBCS Standard Edition 2 instance.
 
-A. Database Version
---
+### A. Database Version
+
 
 ```sql
 
@@ -31,8 +31,8 @@ Oracle Database 19c Standard Edition 2 Release 19.0.0.0.0 - Production
 Version 19.21.0.0.0
 ```
 
-B. Tablespace Encryption Status
---
+### B. Tablespace Encryption Status
+
 
 The dba_tablespaces view confirms that our core tablespaces were created with TDE enabled (ENCRYPTED = YES):
 
@@ -49,8 +49,8 @@ USERS                          YES
 TEMP                           YES
 ```
 
-C. TDE Wallet Status
---
+### C. TDE Wallet Status
+
 
 The encryption wallet is clearly open and functional:
 
@@ -69,8 +69,8 @@ FILE                 /opt/oracle/dcs/commonstore/wallets/vcccdb_rtn_yyz OPEN    
 
 The expectation: Since encryption is mandated, active, and the wallet is open, creating a new tablespace should work and be encrypted by default.
 
-2. The Failure: ORA-00439
--------------------------
+### 2. The Failure: ORA-00439
+
 
 When attempting to create a new tablespace (TEST), we hit an unexpected wall:
 
@@ -98,8 +98,8 @@ AUTOEXTEND ON NEXT 256M MAXSIZE UNLIMITED...
 
 This error is highly confusing: How can TDE be not enabled when the tablespaces are encrypted and the wallet is open?
 
-3. The Root Cause: Oracle Bug 37740291
---------------------------------------
+### 3. The Root Cause: Oracle Bug 37740291
+
 
 The problem lies not in your configuration, but in a known defect within the Standard Edition 2 codebase concerning TDE validation in cloud environments.
 
@@ -113,21 +113,21 @@ Oracle Support Document: KI40518
 
 This bug affects several versions, including the 19c Release Updates, up to and including 19.27.0. The SE2 code incorrectly validates the TDE feature when creating a new tablespace, leading to the ORA-00439 error.
 
-Note: Oracle has explicitly stated that for this bug, the WORKAROUND is NONE. The only way to resolve this is by applying the required patch.
----
+### Note: Oracle has explicitly stated that for this bug, the WORKAROUND is NONE. The only way to resolve this is by applying the required patch.
 
-4. The Resolution: Applying the DB Release Update
----------------------------------------------------
+
+### 4. The Resolution: Applying the DB Release Update
+
 To fix this specific issue, you must apply the Database Release Update (RU) that includes the patch for Bug 37740291.
 
-A. The Fix Version
---
+### A. The Fix Version
+
 According to Oracle Support Document KI40518, the fix is first included in:
 
 19.28.0.0.250715 (July 2025) DB Release Update (DB RU)
 
-B. Post-Patch Validation
---
+### B. Post-Patch Validation
+
 
 After applying the necessary patch (which in this scenario took the database to 19.28.0.0.0), the database version is updated:
 
@@ -141,8 +141,8 @@ Oracle Database 19c Standard Edition 2 Release 19.0.0.0.0 - Production
 Version 19.28.0.0.0
 ```
 
-C. The Successful Tablespace Creation
---
+### C. The Successful Tablespace Creation
+
 With the patched version, the tablespace creation command now executes successfully, as expected:
 
 ```sql
@@ -173,8 +173,8 @@ TEST                           YES
 6 rows selected.
 ```
 
-Conclusion
-------
+## Conclusion
+
 
 Encountering the ORA-00439 TDE error in an Oracle Cloud SE2 environment is confusing, but it's important to remember that this behavior is often due to product-specific bugs related to cloud feature enablement, not configuration errors.
 
