@@ -9,8 +9,8 @@ This is where the paradox begins. TDE is historically an Enterprise Edition (EE)
 
 This post details a specific bug that causes the dreaded ORA-00439 error in 19c SE2 environments and provides the definitive solution.
 
-1. Environment and Initial Encryption Check
--------------------------------------------
+#1. Environment and Initial Encryption Check
+
 
 We are running a typical OCI DBCS Standard Edition 2 instance.
 
