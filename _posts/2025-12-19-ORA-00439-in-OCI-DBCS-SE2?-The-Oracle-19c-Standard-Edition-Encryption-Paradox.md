@@ -12,7 +12,7 @@ This post details a specific bug that causes the dreaded ORA-00439 error in 19c 
 
 
 1. Environment and Initial Encryption Check
--------------------------------------------
+--
 
 
 
