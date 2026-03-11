@@ -97,9 +97,9 @@ This change explains why the renewed certificate your automation produced only h
 Key points:
 ----
 
-•	Certificates issued by Let’s Encrypt no longer include the Client Authentication EKU by default. 
-•	OCI requires EKUs to remain unchanged during certificate updates.
-•	That EKU mismatch broke your automated update step.
++	Certificates issued by Let’s Encrypt no longer include the Client Authentication EKU by default. 
++	OCI requires EKUs to remain unchanged during certificate updates.
++	That EKU mismatch broke your automated update step.
 
 
 Solution
