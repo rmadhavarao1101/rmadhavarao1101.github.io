@@ -8,7 +8,7 @@ When administering an Oracle Database Appliance (ODA), you may update the OS-lev
 Important disclaimer
 --------------------
 Modifying ODA internal databases directly is risky. Only proceed after:
-- Taking a full backup (or at minimum backing up affected tables).
+- Taking a full backup (or at a minimum backing up affected tables).
 - Consulting Oracle support / your change management process if this is a production system.
 - Performing these steps during a maintenance window if possible.
 
