@@ -84,7 +84,7 @@ Whereas on previous certificate, we can see both Client and server authenticatio
 
 
 Let’s Encrypt explains that:
--------
+--
 
 +	Historically, certificates included both server and client authentication EKUs.
 +	Public certificates rarely need the clientAuth purpose.
