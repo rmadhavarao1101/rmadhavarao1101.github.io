@@ -85,9 +85,9 @@ Whereas on previous certificate, we can see both Client and server authenticatio
 
 Let’s Encrypt explains that:
 
--	Historically, certificates included both server and client authentication EKUs.
--	Public certificates rarely need the clientAuth purpose.
--	Due to industry and browser root requirements, Let’s Encrypt will phase out clientAuth entirely from their default certificate profile. 
++	Historically, certificates included both server and client authentication EKUs.
++	Public certificates rarely need the clientAuth purpose.
++	Due to industry and browser root requirements, Let’s Encrypt will phase out clientAuth entirely from their default certificate profile. 
 
 Note: https://letsencrypt.org/2025/05/14/ending-tls-client-authentication
 
