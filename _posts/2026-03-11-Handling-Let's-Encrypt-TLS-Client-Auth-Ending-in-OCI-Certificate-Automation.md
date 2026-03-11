@@ -5,7 +5,7 @@ Once renewal is triggered, the automation extracts the certificate components fr
 During the implementation of this automation workflow, we encountered an unexpected issue while attempting to update an existing certificate in OCI. Despite the certificate being successfully renewed and validated, the update operation failed with the following error:
 The certificate's new extended key usages do not match the existing extended key usages.
 
-![Apex](images/handlingletsencrypt03112026/OCI_Certerror1.png)
+![Apex](/images/handlingletsencrypt03112026/OCI_Certerror1.png)
 
 
 At first glance the certificate appeared valid, making the error difficult to interpret. This article walks through the investigation process, explains the root cause of the issue, and describes the correct approach when automating certificate updates in OCI.
