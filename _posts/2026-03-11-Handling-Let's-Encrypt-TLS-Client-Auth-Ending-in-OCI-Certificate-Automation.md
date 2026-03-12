@@ -90,7 +90,7 @@ Let’s Encrypt explains that:
 +	Public certificates rarely need the clientAuth purpose.
 +	Due to industry and browser root requirements, Let’s Encrypt will phase out clientAuth entirely from their default certificate profile. 
 
-Note: https://letsencrypt.org/2025/05/14/ending-tls-client-authentication
+Note: [https://letsencrypt.org/2025/05/14/ending-tls-client-authentication](https://letsencrypt.org/2025/05/14/ending-tls-client-authentication)
 
 This change explains why the renewed certificate your automation produced only has server authentication — and not client — even if the original certificate did. Because OCI won’t accept a certificate with different EKUs during update, this mismatch prevented the automated update from succeeding.
 
