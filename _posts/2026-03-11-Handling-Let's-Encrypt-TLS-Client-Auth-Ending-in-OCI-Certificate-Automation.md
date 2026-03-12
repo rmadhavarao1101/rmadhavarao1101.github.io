@@ -3,13 +3,13 @@
 Introduction:
 -----
 
-Automating __SSL certificate renewal__ is a common requirement in modern cloud environments, particularly when using short-lived certificates such as those issued by Let’s Encrypt. In our __Oracle Cloud Infrastructure (OCI)__ deployment, we use Let’s Encrypt certificates to secure applications hosted behind an __OCI Load Balancer__.
+Automating __SSL certificate renewal__ is a common requirement in modern cloud environments, particularly when using short-lived certificates such as those issued by Let’s Encrypt. In our __Oracle Cloud Infrastructure (OCI)__ deployment, we use __Let’s Encrypt certificates__ to secure applications hosted behind an __OCI Load Balancer__.
 
-To streamline certificate management and eliminate manual intervention, we implemented an automation workflow using __Certify The Web, OpenSSL, and the Oracle Cloud Infrastructure CLI__. Instead of relying solely on Certify The Web’s internal scheduler, certificate renewal is triggered programmatically through a __PowerShell script__. This script orchestrates the entire lifecycle—from initiating renewal to deploying the updated certificate in OCI.
+To streamline certificate management and eliminate manual intervention, we implemented an automation workflow using __Certify The Web, OpenSSL, and the Oracle Cloud Infrastructure CLI__. Instead of relying solely on __Certify The Web’s__ internal scheduler, certificate renewal is triggered programmatically through a __PowerShell script__. This script orchestrates the entire lifecycle—from initiating renewal to deploying the updated certificate in OCI.
 
-Once renewal is triggered, the automation extracts the certificate components from the generated PFX file using OpenSSL, validates key certificate properties, and then uploads the certificate to the __OCI Certificates Service__ using the __OCI CLI__. This ensures the certificate used by the OCI Load Balancer remains current without requiring manual updates.
+Once renewal is triggered, the automation extracts the certificate components from the generated PFX file using OpenSSL, validates key certificate properties, and then uploads the certificate to the __OCI Certificates Service__ using the __OCI CLI__. This ensures the certificate used by the __OCI Load Balancer__ remains current without requiring manual updates.
 
-During the implementation of this automation workflow, we encountered an unexpected issue while attempting to update an existing certificate in OCI. Despite the certificate being successfully renewed and validated, the update operation failed with the following error:
+During the implementation of this automation workflow, we encountered an unexpected issue while attempting to update an existing certificate in __OCI__. Despite the certificate being successfully renewed and validated, the update operation failed with the following error:
 
 The certificate's new extended key usages do not match the existing extended key usages.
 
@@ -23,9 +23,9 @@ Automation Workflow
 
 Our SSL certificate renewal and update process consists of a few key steps:
 1.	Trigger Renewal – The script calls __Certify The Web__ to renew the certificate.
-2.	Extract Components – Using OpenSSL, the PFX file is split into private key, public certificate, and intermediate/root chain.
-3.	Build Full Chain – Intermediate and root certificates are combined to form the full chain required by OCI.
-4.	Upload to OCI – The script uses the OCI CLI to update the existing certificate in OCI’s Certificates Service.
+2.	Extract Components – Using __OpenSSL__, the PFX file is split into private key, public certificate, and intermediate/root chain.
+3.	Build Full Chain – __Intermediate and root certificates__ are combined to form the full chain required by OCI.
+4.	Upload to OCI – The script uses the __OCI CLI__ to update the existing certificate in __OCI’s Certificates Service__.
 5.	Restore Security – Any temporary changes, like opening port 80 for validation, are reverted.
    
 This workflow ensures that certificate renewal is fully automated and reliable, reducing manual intervention and downtime.
@@ -61,7 +61,7 @@ Here’s what happened:
 
 __OCI__ enforces that the Extended Key Usages (EKUs) of a certificate must match exactly when updating an existing certificate. Because the renewed certificate did not include the clientAuth EKU, __OCI__ rejected the update.
 
-This is not random — it reflects a recent policy change by Let’s Encrypt. Starting in 2026, Let’s Encrypt has removed the TLS Client Authentication EKU from the default certificates they issue. 
+This is not random — it reflects a recent policy change by __Let’s Encrypt__. Starting in 2026, __Let’s Encrypt__ has removed the TLS Client Authentication EKU from the default certificates they issue. 
 
 ![Apex](/images/handlingletsencrypt03112026/iimneweku.png)
 
