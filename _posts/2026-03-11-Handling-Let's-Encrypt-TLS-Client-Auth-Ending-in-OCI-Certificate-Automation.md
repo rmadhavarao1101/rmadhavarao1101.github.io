@@ -112,7 +112,7 @@ To resolve the certificate renewal issue caused by mismatched Extended Key Usage
 +	Replace the __old certificate OCID__ with the new one in the __PowerShell script__.
 +	This allows __Certify The Web__ to continue renewing and preparing the certificate for __OCI__ without errors.
 3.	Update the __Load Balancer__
-+	Point the LB listener to the new certificate service.
++	Point the __LB listener__ to the new __certificate service__.
 +	This is a one-time operation, after which traffic will continue to be transmitted securely.
 Outcome: Future certificate renewals are fully automated, and the Load Balancer does not require additional updates. This approach minimizes operational overhead while ensuring secure traffic handling.
 
