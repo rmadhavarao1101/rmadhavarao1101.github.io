@@ -5,7 +5,7 @@ Introduction:
 
 Automating __SSL certificate renewal__ is a common requirement in modern cloud environments, particularly when using short-lived certificates such as those issued by Let’s Encrypt. In our __Oracle Cloud Infrastructure (OCI)__ deployment, we use __Let’s Encrypt certificates__ to secure applications hosted behind an __OCI Load Balancer__.
 
-To streamline certificate management and eliminate manual intervention, we implemented an automation workflow using __Certify The Web, OpenSSL, and the Oracle Cloud Infrastructure CLI__. Instead of relying solely on __Certify The Web’s__ internal scheduler, certificate renewal is triggered programmatically through a __PowerShell script__. This script orchestrates the entire lifecycle—from initiating renewal to deploying the updated certificate in __OCI__.
+To streamline certificate management and eliminate manual intervention, we implemented an automation workflow using __Certify The Web, OpenSSL, and the Oracle Cloud Infrastructure CLI__. Instead of relying solely on __Certify The Web’s__ internal scheduler, certificate renewal is triggered programmatically through a __PowerShell script__. This script orchestrates the entire lifecycle—from initiating renewal to deploying the updated __certificate__ in __OCI__.
 
 Once renewal is triggered, the automation extracts the certificate components from the generated PFX file using OpenSSL, validates key certificate properties, and then uploads the certificate to the __OCI Certificates Service__ using the __OCI CLI__. This ensures the certificate used by the __OCI Load Balancer__ remains current without requiring manual updates.
 
