@@ -16,7 +16,7 @@ The certificate's new extended key usages do not match the existing extended key
 ![Apex](/images/handlingletsencrypt03112026/OCI_Certerror1.png)
 
 
-At first glance the certificate appeared valid, making the error difficult to interpret. This article walks through the investigation process, explains the root cause of the issue, and describes the correct approach when automating certificate updates in OCI.
+At first glance the certificate appeared valid, making the error difficult to interpret. This article walks through the investigation process, explains the root cause of the issue, and describes the correct approach when automating certificate updates in __OCI__.
 
 Automation Workflow
 ----
