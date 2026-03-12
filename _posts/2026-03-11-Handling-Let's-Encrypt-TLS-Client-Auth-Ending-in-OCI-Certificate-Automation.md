@@ -3,11 +3,11 @@
 Introduction:
 -----
 
-Automating SSL certificate renewal is a common requirement in modern cloud environments, particularly when using short-lived certificates such as those issued by Let’s Encrypt. In our Oracle Cloud Infrastructure (OCI) deployment, we use Let’s Encrypt certificates to secure applications hosted behind an OCI Load Balancer.
+Automating __SSL certificate renewal__ is a common requirement in modern cloud environments, particularly when using short-lived certificates such as those issued by Let’s Encrypt. In our __Oracle Cloud Infrastructure (OCI)__ deployment, we use Let’s Encrypt certificates to secure applications hosted behind an __OCI Load Balancer__.
 
-To streamline certificate management and eliminate manual intervention, we implemented an automation workflow using Certify The Web, OpenSSL, and the Oracle Cloud Infrastructure CLI. Instead of relying solely on Certify The Web’s internal scheduler, certificate renewal is triggered programmatically through a PowerShell script. This script orchestrates the entire lifecycle—from initiating renewal to deploying the updated certificate in OCI.
+To streamline certificate management and eliminate manual intervention, we implemented an automation workflow using __Certify The Web, OpenSSL, and the Oracle Cloud Infrastructure CLI__. Instead of relying solely on Certify The Web’s internal scheduler, certificate renewal is triggered programmatically through a __PowerShell script__. This script orchestrates the entire lifecycle—from initiating renewal to deploying the updated certificate in OCI.
 
-Once renewal is triggered, the automation extracts the certificate components from the generated PFX file using OpenSSL, validates key certificate properties, and then uploads the certificate to the OCI Certificates Service using the OCI CLI. This ensures the certificate used by the OCI Load Balancer remains current without requiring manual updates.
+Once renewal is triggered, the automation extracts the certificate components from the generated PFX file using OpenSSL, validates key certificate properties, and then uploads the certificate to the __OCI Certificates Service__ using the __OCI CLI__. This ensures the certificate used by the OCI Load Balancer remains current without requiring manual updates.
 
 During the implementation of this automation workflow, we encountered an unexpected issue while attempting to update an existing certificate in OCI. Despite the certificate being successfully renewed and validated, the update operation failed with the following error:
 
@@ -22,7 +22,7 @@ Automation Workflow
 ----
 
 Our SSL certificate renewal and update process consists of a few key steps:
-1.	Trigger Renewal – The script calls Certify The Web to renew the certificate.
+1.	Trigger Renewal – The script calls __Certify The Web__ to renew the certificate.
 2.	Extract Components – Using OpenSSL, the PFX file is split into private key, public certificate, and intermediate/root chain.
 3.	Build Full Chain – Intermediate and root certificates are combined to form the full chain required by OCI.
 4.	Upload to OCI – The script uses the OCI CLI to update the existing certificate in OCI’s Certificates Service.
@@ -34,12 +34,12 @@ This workflow ensures that certificate renewal is fully automated and reliable, 
 Problem Encountered
 ----
 
-While running the automation script, the certificate renewal itself completed successfully. However, when updating the OCI Certificates service via the CLI, an error occurred:
+While running the automation script, the certificate renewal itself completed successfully. However, when updating the __OCI Certificates service__ via the CLI, an error occurred:
 
 “The certificate's new extended key usages do not match the existing extended key usages.”
 ![Apex](/images/handlingletsencrypt03112026/oci_certerror02.png)
 
-This happens because the existing OCI certificate included both “TLS Web Server Authentication” and “TLS Web Client Authentication” in its Extended Key Usage (EKU). The newly renewed certificate, generated via Certify The Web and Let’s Encrypt, contained only the server authentication EKU.
+This happens because the existing OCI certificate included both __“TLS Web Server Authentication”__ and __“TLS Web Client Authentication”__ in its Extended Key Usage (EKU). The newly renewed certificate, generated via Certify The Web and Let’s Encrypt, contained only the server authentication EKU.
 
 Since OCI validates that the new certificate matches the EKU of the original certificate, the mismatch caused the update to fail.
 This scenario highlights a common challenge when automating certificate updates: the renewed certificate’s attributes must be compatible with the original OCI certificate.
@@ -47,7 +47,7 @@ This scenario highlights a common challenge when automating certificate updates:
 Root Cause & Analysis
 ----
 
-The core reason this automation failed lies in a shift in how public certificate authorities issue certificates — most notably from Let’s Encrypt.
+The core reason this automation failed lies in a shift in how public certificate authorities issue certificates — most notably from __Let’s Encrypt__.
 Here’s what happened:
 
 1	Existing OCI certificate was originally issued with two Extended Key Usages:
@@ -59,7 +59,7 @@ Here’s what happened:
 
    +	TLS Web Server Authentication
 
-OCI enforces that the Extended Key Usages (EKUs) of a certificate must match exactly when updating an existing certificate. Because the renewed certificate did not include the clientAuth EKU, OCI rejected the update.
+__OCI__ enforces that the Extended Key Usages (EKUs) of a certificate must match exactly when updating an existing certificate. Because the renewed certificate did not include the clientAuth EKU, __OCI__ rejected the update.
 
 This is not random — it reflects a recent policy change by Let’s Encrypt. Starting in 2026, Let’s Encrypt has removed the TLS Client Authentication EKU from the default certificates they issue. 
 
@@ -98,14 +98,14 @@ Key points:
 ----
 
 +	Certificates issued by Let’s Encrypt no longer include the Client Authentication EKU by default. 
-+	OCI requires EKUs to remain unchanged during certificate updates.
++	__OCI__ requires EKUs to remain unchanged during certificate updates.
 +	That EKU mismatch broke your automated update step.
 
 
 Solution
 ----
 To resolve the certificate renewal issue caused by mismatched Extended Key Usages (EKUs), we opted for a clean, one-time fix:
-1.	Create a new OCI Certificate Service
+1.	Create a new __OCI Certificate Service__
 +	Generate a certificate with the required EKUs (e.g., TLS Web Server Authentication).
 +	This ensures compatibility with the Load Balancer and the automation script.
 2.	Update the automation script
@@ -119,7 +119,7 @@ Outcome: Future certificate renewals are fully automated, and the Load Balancer 
 
 PS: please refer the below blog for automating Cert renewal.
 
-https://sackville-tech.blogspot.com/2025/10/zero-click-cert-rotation-on-oracle.html
+(https://sackville-tech.blogspot.com/2025/10/zero-click-cert-rotation-on-oracle.html)
 
 
 
