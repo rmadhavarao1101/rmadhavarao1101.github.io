@@ -119,7 +119,7 @@ Outcome: Future certificate renewals are fully automated, and the Load Balancer 
 
 PS: please refer the below blog for automating Cert renewal.
 
-https://sackville-tech.blogspot.com/2025/10/zero-click-cert-rotation-on-oracle.html
+[https://sackville-tech.blogspot.com/2025/10/zero-click-cert-rotation-on-oracle.html](https://sackville-tech.blogspot.com/2025/10/zero-click-cert-rotation-on-oracle.html)
 
 
 
