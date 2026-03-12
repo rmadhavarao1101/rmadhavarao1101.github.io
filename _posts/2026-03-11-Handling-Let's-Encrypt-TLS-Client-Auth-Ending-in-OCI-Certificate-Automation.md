@@ -108,10 +108,10 @@ To resolve the certificate renewal issue caused by mismatched Extended Key Usage
 1.	Create a new __OCI Certificate Service__
 +	Generate a certificate with the required EKUs (e.g., TLS Web Server Authentication).
 +	This ensures compatibility with the Load Balancer and the automation script.
-2.	Update the automation script
-+	Replace the old certificate OCID with the new one in the PowerShell script.
+2.	Update the __automation script__
++	Replace the __old certificate OCID__ with the new one in the PowerShell script.
 +	This allows Certify The Web to continue renewing and preparing the certificate for OCI without errors.
-3.	Update the Load Balancer
+3.	Update the __Load Balancer__
 +	Point the LB listener to the new certificate service.
 +	This is a one-time operation, after which traffic will continue to be transmitted securely.
 Outcome: Future certificate renewals are fully automated, and the Load Balancer does not require additional updates. This approach minimizes operational overhead while ensuring secure traffic handling.
