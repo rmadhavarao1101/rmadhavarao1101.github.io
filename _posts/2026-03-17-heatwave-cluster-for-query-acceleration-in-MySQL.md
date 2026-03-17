@@ -1,6 +1,6 @@
 
-##Using heatwave cluster for query acceleration in MySQL:
-
+Using heatwave cluster for query acceleration in MySQL:
+----
 
 Introduction:
 ----
