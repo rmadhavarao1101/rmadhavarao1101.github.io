@@ -33,17 +33,56 @@ Set up MySQL DB and add heatwave cluster:
 
 1.	Click on databases menu and click on DB Systems under MySQL.
 
-   ![Apex](/images/heatwavecluster/mysql_dbsystem02.png)
+   ![Apex](/images/heatwavecluster/createdbsystem.png)
 
 2.	Click on “Create DB System”
 
-   ![Apex](/images/heatwavecluster/compartment_03.png)
+   ![Apex](/images/heatwavecluster/mysql_dbsystem02.png)
 
 3.	Select the compartment, add DB name and select Heatwave from DB options.
 
-    ![Apex](/images/heatwavecluster/userdetail04.png)
+    ![Apex](/images/heatwavecluster/compartment_03.png)
 
 4.  Enter username and password for MySQL DB.
   
     ![Apex](/images/heatwavecluster/userdetail04.png)
-  
+
+
+5.	 Select the VCN and the Private subnet.
+
+    ![Apex](/images/heatwavecluster/vcn05.png)
+
+6.	 Enable automatic backup.
+
+    ![Apex](/images/heatwavecluster/backup06.png)
+
+7.	Ensure we have 3306 and 33060 is open in the private subnet security rules.
+
+    ![Apex](/images/heatwavecluster/port07.png)
+
+8.	Note down the endpoint Private IP, which will be used to connect to MySQL DB from compute instance.
+
+   ![Apex](/images/heatwavecluster/progress08.png)
+
+9.	Enable Heatwave Cluster in MySQL database. Click on “More Actions” and select "Add Heatwave cluster"
+
+   ![Apex](/images/heatwavecluster/cluster09.png)
+
+10.	Under configure heatwave cluster, click on “estimate node” or you can manually enter the number of nodes required.
+
+   ![Apex](/images/heatwavecluster/addnode10.png)
+
+
+11.	Click on generate estimate, this will recommend the number of nodes required to process the schema data.
+
+   ![Apex](/images/heatwavecluster/estimate11.png)
+
+
+12.	Select the schema which you need to load and copy the command which can be used to manually load schema data to the heatwave cluster memory.
+
+    ![Apex](/images/heatwavecluster/schema12.png)
+
+13.	Now we have heat wave enabled with one node and 512 GB memory.
+
+    ![Apex](/images/heatwavecluster/workrequest13.png)
+
