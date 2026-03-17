@@ -84,5 +84,49 @@ Set up MySQL DB and add heatwave cluster:
 
 13.	Now we have heat wave enabled with one node and 512 GB memory.
 
+     ![Apex](/images/heatwavecluster/infohw.png)
+
     ![Apex](/images/heatwavecluster/workrequest13.png)
+
+    Under resources click on work requests to see the progress of heatwave cluster, also click on Heatwave to see if state is active or not.
+
+     ![Apex](/images/heatwavecluster/HWclusterinfo14.png)
+
+    Load data to heatwave and see the performance difference:
+1.	ssh to your compute instance, using your private key.
+
+```sh
+
+Rajesh.Madhavarao@Eclipsyss-MacBook-Pro .ssh % ssh -i ./oci-mysql-key opc@140.238.144.160                                                                                       
+Activate the web console with: systemctl enable --now cockpit.socket
+
+Last login: Fri Apr 28 09:05:25 2023 from 24.215.68.152
+[opc@mysql-heatwave ~]$
+[opc@mysql-heatwave ~]$
+
+```
+
+Note: follow below steps to download test schema dump to compute instance and from there we will upload to MySQL DB
+
+```sh
+
+[opc@mysql-heatwave ~]$ wget https://downloads.mysql.com/docs/airport-db.tar.gz
+--2023-05-03 14:31:15--  https://downloads.mysql.com/docs/airport-db.tar.gz
+Resolving downloads.mysql.com (downloads.mysql.com)... 23.66.195.54, 2600:140a:0:69b::2e31, 2600:140a:0:682::2e31
+Connecting to downloads.mysql.com (downloads.mysql.com)|23.66.195.54|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 655687673 (625M) [application/x-gzip]
+Saving to: ‘airport-db.tar.gz’
+
+airport-db.tar.gz                                 100%[===========================================================================================================>] 625.31M  32.1MB/s    in 20s     
+
+2023-05-03 14:31:36 (30.6 MB/s) - ‘airport-db.tar.gz’ saved [655687673/655687673]
+
+
+[opc@mysql-heatwave ~]$ tar -xf airport-db.tar.gz
+
+```
+
+
+
 
