@@ -1,8 +1,9 @@
 
-Using heatwave cluster for query acceleration in MySQL:
+##Using heatwave cluster for query acceleration in MySQL:
 
 
 Introduction:
+----
 
 MySQL HeatWave is an in-memory query acceleration technology introduced by Oracle for the MySQL Database Service on Oracle Cloud Infrastructure. It allows users to run MySQL queries on large sets of data in real-time by utilizing massively parallel processing capabilities of modern CPUs and GPUs.
 
@@ -303,10 +304,10 @@ Here we have disabled the heatwave engine, we can see that the explain plan is u
 
 Here are some of the ways that MySQL HeatWave helps improve query performance:
 
-•	In-Memory Processing: MySQL HeatWave stores data in memory, which means that queries can be processed much faster than with traditional disk-based storage. This reduces the time it takes to read data from the database,  and speeds up query processing.
-•	Distributed Computing: MySQL HeatWave uses a distributed architecture that allows queries to be processed in parallel across multiple nodes. This helps to reduce query response times and improves overall query performance.
-•	Columnar Storage: MySQL HeatWave uses a columnar storage format that is optimized for analytic queries. This allows for faster data retrieval and processing, as only the relevant columns are accessed during a query.
-•	Automatic Data Management: MySQL HeatWave automatically manages data placement and data movement across nodes to optimize query performance. This ensures that data is always available in the right place at the right time for queries to be processed efficiently.
++	In-Memory Processing: MySQL HeatWave stores data in memory, which means that queries can be processed much faster than with traditional disk-based storage. This reduces the time it takes to read data from the database,  and speeds up query processing.
++	Distributed Computing: MySQL HeatWave uses a distributed architecture that allows queries to be processed in parallel across multiple nodes. This helps to reduce query response times and improves overall query performance.
++	Columnar Storage: MySQL HeatWave uses a columnar storage format that is optimized for analytic queries. This allows for faster data retrieval and processing, as only the relevant columns are accessed during a query.
++	Automatic Data Management: MySQL HeatWave automatically manages data placement and data movement across nodes to optimize query performance. This ensures that data is always available in the right place at the right time for queries to be processed efficiently.
 
 Overall, MySQL HeatWave helps to improve query performance by leveraging in-memory processing, distributed computing, columnar storage, and automatic data management. This enables faster query processing times and more efficient use of resources, leading to improved application performance and user satisfaction.
 
