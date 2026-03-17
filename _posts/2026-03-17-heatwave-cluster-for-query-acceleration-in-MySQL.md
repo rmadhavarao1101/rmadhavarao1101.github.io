@@ -10,3 +10,4 @@ HeatWave works by automatically synchronizing data between the MySQL database an
 
 With HeatWave, MySQL users can take advantage of a highly scalable, fault-tolerant, and secure architecture that can handle complex workloads, such as data analytics, machine learning, and business intelligence. HeatWave also provides features like automatic failover, backup and restore, and real-time analytics, making it an ideal solution for businesses that require high-speed data processing capabilities.
 
+![Apex](/images/heatwavecluster/heatwave_architecture_oci.png)
