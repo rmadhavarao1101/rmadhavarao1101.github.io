@@ -313,8 +313,8 @@ Overall, MySQL HeatWave helps to improve query performance by leveraging in-memo
 
 Reference links:
 
-https://dev.mysql.com/doc/heatwave/en/mys-hw-architecture.html
-https://apexapps.oracle.com/pls/apex/r/dbpm/livelabs/run-workshop?p210_wid=878&p210_wec=&session=107375094360287
+[https://dev.mysql.com/doc/heatwave/en/mys-hw-architecture.html](https://dev.mysql.com/doc/heatwave/en/mys-hw-architecture.html)
+[https://apexapps.oracle.com/pls/apex/r/dbpm/livelabs/run-workshop?p210_wid=878&p210_wec=&session=107375094360287](https://apexapps.oracle.com/pls/apex/r/dbpm/livelabs/run-workshop?p210_wid=878&p210_wec=&session=107375094360287)
 
 
 
