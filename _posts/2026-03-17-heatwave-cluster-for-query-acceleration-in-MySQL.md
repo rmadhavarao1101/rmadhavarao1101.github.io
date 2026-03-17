@@ -28,9 +28,12 @@ Now, let us perform a small test by creating MySQL DB in OCI, enabling Heatwave 
 
  
 Perquisites: 
+---
+
 Login to OCI Tenancy, create your compartment for this POC, create your VCN and appropriate security rules. Also, create a compute instance in public subnet for connecting to DB in Private subnet and generate private and public key.
 
 Set up MySQL DB and add heatwave cluster:
+---
 
 1.	Click on databases menu and click on DB Systems under MySQL.
 
