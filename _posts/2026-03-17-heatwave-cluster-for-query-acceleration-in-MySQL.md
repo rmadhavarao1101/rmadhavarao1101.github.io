@@ -127,6 +127,196 @@ airport-db.tar.gz                                 100%[=========================
 
 ```
 
+2.	Use MySQL Shell to connect to MySQL DB and load the dump file.
+
+```sh
+[opc@mysql-heatwave ~]$ mysqlsh root@10.0.1.124
+MySQL Shell 8.0.33
+[opc@mysql-heatwave ~]$ mysqlsh root@10.0.1.124
+MySQL Shell 8.0.33
+
+Copyright (c) 2016, 2023, Oracle and/or its affiliates.
+Oracle is a registered trademark of Oracle Corporation and/or its affiliates.
+Other names may be trademarks of their respective owners.
+
+Type '\help' or '\?' for help; '\quit' to exit.
+Creating a session to 'root@10.0.1.124'
+Fetching schema names for auto-completion... Press ^C to stop.
+Your MySQL connection id is 22 (X protocol)
+Server version: 8.0.33-u2-cloud MySQL Enterprise - Cloud
+No default schema selected; type \use <schema> to set one.
+MySQL  10.0.1.124:33060+ ssl  JS >
+
+
+MySQL  10.0.1.124:33060+ ssl  JS > util.loadDump("airport-db", {threads: 16, loadIndexes: "false", ignoreVersion: true,resetProgress: true})
+Loading DDL and Data from 'airport-db' using 16 threads.
+Opening dump...
+NOTE: Dump format has version 1.0.2 and was created by an older version of MySQL Shell. If you experience problems loading it, please recreate the dump using the current version of MySQL Shell and try again.
+Target is MySQL 8.0.33-u2-cloud (MySQL Database Service). Dump was produced from MySQL 8.0.26-cloud
+Scanning metadata - done       
+Checking for pre-existing objects...
+Executing common preamble SQL
+Executing DDL - done         
+Executing view DDL - done       
+Starting data load
+8 thds loading | 100% (2.03 GB / 2.03 GB), 7.03 MB/s, 14 / 14 tables done   
+Executing common postamble SQL                                           
+39 chunks (59.50M rows, 2.03 GB) for 14 tables in 1 schemas were loaded in 2 min 17 sec (avg throughput 15.70 MB/s)
+0 warnings were reported during the load.                                
+```
+
+Note: MySQL Shell can also be downloaded by visiting this website: https://dev.mysql.com/downloads/shell/
+
+3.	Switch to SQL and verify the loaded schema and tables.
+
+```sql
+MySQL  10.0.1.124:33060+ ssl  JS > \sql
+Switching to SQL mode... Commands end with ;
+Fetching global names for auto-completion... Press ^C to stop.
+MySQL  10.0.1.124:33060+ ssl  SQL > 
+MySQL  10.0.1.124:33060+ ssl  SQL > show schemas;
++--------------------+
+| Database           |
++--------------------+
+| airportdb          |
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
+| world              |
++--------------------+
+6 rows in set (0.0010 sec)
+ MySQL  10.0.1.124:33060+ ssl  SQL > use airportdb;
+Default schema set to `airportdb`.
+Fetching global names, object names from `airportdb` for auto-completion... Press ^C to stop.
+ MySQL  10.0.1.124:33060+ ssl  airportdb  SQL > show tables;
++---------------------+
+| Tables_in_airportdb |
++---------------------+
+| airline             |
+| airplane            |
+| airplane_type       |
+| airport             |
+| airport_geo         |
+| airport_reachable   |
+| booking             |
+| employee            |
+| flight              |
+| flight_log          |
+| flightschedule      |
+| passenger           |
+| passengerdetails    |
+| weatherdata         |
++---------------------+
+14 rows in set (0.0012 sec)
+```
+
+4.	Load data to Heatwave cluster:
+
+   ```sql
+MySQL  10.0.1.124:33060+ ssl  airportdb  SQL > CALL sys.heatwave_load(JSON_ARRAY("airportdb"),NULL);
+
+
++-------------------------------------------------------------------------------+
+| LOAD SUMMARY                                                                  |
++-------------------------------------------------------------------------------+
+|                                                                               |
+| SCHEMA                          TABLES       TABLES      COLUMNS         LOAD |
+| NAME                            LOADED       FAILED       LOADED     DURATION |
+| ------                          ------       ------      -------     -------- |
+| `airportdb`                         14            0          105      29.35 s |
+|                                                                               |
++-------------------------------------------------------------------------------+
+6 rows in set (29.5453 sec)
+```
+
+5.	Let us query few tables and see the performance difference:
+
+   ```sql
+
+MySQL  10.0.1.124:33060+ ssl  airportdb  SQL > explain select count(flight_id) from booking where price>300\G;
+*************************** 1. row ***************************
+           id: 1
+  select_type: NONE
+        table: NULL
+   partitions: NULL
+         type: NULL
+possible_keys: NULL
+          key: NULL
+      key_len: NULL
+          ref: NULL
+         rows: NULL
+     filtered: NULL
+        Extra: Using secondary engine RAPID. Use EXPLAIN FORMAT=TREE to show the plan.
+1 row in set, 1 warning (0.0119 sec)
+Note (code 1003): /* select#1 */ select count(`airportdb`.`booking`.`flight_id`) AS `count(flight_id)` from `airportdb`.`booking` where (`airportdb`.`booking`.`price` > 300.00)
+ERROR: 1065: Query was empty
+MySQL  10.0.1.124:33060+ ssl  airportdb  SQL > select count(flight_id) from booking where price>300;
++------------------+
+| count(flight_id) |
++------------------+
+|         21823795 |
++------------------+
+1 row in set (0.0307 sec)
+
+```
+As we can see from the explain plan that the query is using secondary Heatwave engine since we have Heatwave enabled and the time taken is 0.0307 seconds.
+
+Now let us test the same query disabling the Heatwave engine.
+
+```sql
+
+MySQL  10.0.1.124:33060+ ssl  airportdb  SQL > SET SESSION use_secondary_engine=off;
+Query OK, 0 rows affected (0.0005 sec)
+
+MySQL  10.0.1.124:33060+ ssl  airportdb  SQL > explain select count(flight_id) from booking where price>300\G;
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: booking
+   partitions: NULL
+         type: ALL
+possible_keys: NULL
+          key: NULL
+      key_len: NULL
+          ref: NULL
+         rows: 52411514
+     filtered: 33.32999801635742
+        Extra: Using where
+1 row in set, 1 warning (0.0022 sec)
+Note (code 1003): /* select#1 */ select count(`airportdb`.`booking`.`flight_id`) AS `count(flight_id)` from `airportdb`.`booking` where (`airportdb`.`booking`.`price` > 300.00)
+ERROR: 1065: Query was empty
+
+
+
+MySQL  10.0.1.124:33060+ ssl  airportdb  SQL > select count(flight_id) from booking where price>300;
++------------------+
+| count(flight_id) |
++------------------+
+|         21823795 |
++------------------+
+1 row in set (11.3129 sec)
+
+```
+
+Here we have disabled the heatwave engine, we can see that the explain plan is using InnoDB engine and the query is taking 11.3129 seconds, which is significantly time consuming than the query performance with the Heatwave engine.
+
+Here are some of the ways that MySQL HeatWave helps improve query performance:
+
+•	In-Memory Processing: MySQL HeatWave stores data in memory, which means that queries can be processed much faster than with traditional disk-based storage. This reduces the time it takes to read data from the database,  and speeds up query processing.
+•	Distributed Computing: MySQL HeatWave uses a distributed architecture that allows queries to be processed in parallel across multiple nodes. This helps to reduce query response times and improves overall query performance.
+•	Columnar Storage: MySQL HeatWave uses a columnar storage format that is optimized for analytic queries. This allows for faster data retrieval and processing, as only the relevant columns are accessed during a query.
+•	Automatic Data Management: MySQL HeatWave automatically manages data placement and data movement across nodes to optimize query performance. This ensures that data is always available in the right place at the right time for queries to be processed efficiently.
+
+Overall, MySQL HeatWave helps to improve query performance by leveraging in-memory processing, distributed computing, columnar storage, and automatic data management. This enables faster query processing times and more efficient use of resources, leading to improved application performance and user satisfaction.
+
+
+Reference links:
+
+https://dev.mysql.com/doc/heatwave/en/mys-hw-architecture.html
+https://apexapps.oracle.com/pls/apex/r/dbpm/livelabs/run-workshop?p210_wid=878&p210_wec=&session=107375094360287
+
+
 
 
 
