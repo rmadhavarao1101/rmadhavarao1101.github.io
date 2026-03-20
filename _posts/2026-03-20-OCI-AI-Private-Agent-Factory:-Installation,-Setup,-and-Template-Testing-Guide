@@ -6,8 +6,13 @@ It allows organizations to securely connect to enterprise data sources and creat
 With built-in agents like Knowledge Agent and Data Analysis Agent, along with support for multiple LLM providers and enterprise-grade security, 
 Agent Factory makes it easy to deliver scalable and governed AI solutions in minutes.
 
+Agent factory environment can  also be provisioned on Linux machine or mac OS, but here will be provisioning it in OCI from OCI market palce.
+
 In this blog, I will walk through the step-by-step process of installing OCI AI Private Agent Factory on Oracle Cloud Infrastructure (OCI) 
 and demonstrate its usage by testing a sample template from the template gallery.
 
 
+1. to install this from market place , from OCI marketplace search for "AI database private agent factory".
+
+ ![Apex](/images/aiagentfactory/marketplace01.png)
 
