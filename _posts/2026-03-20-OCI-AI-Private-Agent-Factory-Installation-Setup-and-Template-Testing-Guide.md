@@ -206,7 +206,7 @@ Running a test using a template from the Template Gallery.
 
 5. Now, to test, I will paste a dummy transcript to check the summary.
 
-![Apex](/images/aiagentfactory/Playground15.png)
+![Apex](/images/aiagentfactory/Final_16.png)
 
 Conclusion:
 --
