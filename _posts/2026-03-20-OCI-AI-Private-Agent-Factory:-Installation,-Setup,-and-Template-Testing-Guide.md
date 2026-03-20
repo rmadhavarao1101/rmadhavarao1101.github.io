@@ -1,4 +1,4 @@
-##Introduction
+## Introduction
 
 Oracle Corporation AI Database Private Agent Factory (Agent Factory) is a no-code platform that enables users to rapidly build, test, and deploy intelligent AI agents without writing any code. It empowers organizations to securely connect to enterprise data sources and create smart assistants using pre-built agents, customizable workflows, and reusable templates.
 
@@ -197,6 +197,14 @@ Running a test using a template from the Template Gallery.
 3. Now, select the LLM to use (from the LLM configuration you set up earlier), give the workflow a name, save it, and click on 'Playground' to test.
 
 ![Apex](/images/aiagentfactory/Workfloe14.png)
+
+4. Here’s the view of the Playground
+
+![Apex](/images/aiagentfactory/Playground15.png)
+
+5. Now, to test, I will paste a dummy transcript to check the summary.
+
+![Apex](/images/aiagentfactory/Playground15.png)
 
 
 
