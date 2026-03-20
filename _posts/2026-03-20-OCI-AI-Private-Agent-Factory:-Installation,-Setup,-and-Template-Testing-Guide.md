@@ -114,9 +114,7 @@ Once the database connection is successfully validated, proceed to the next step
 
 ![Apex](/images/aiagentfactory/successfulinstall09.png)
 
-6. Please provide all the requested information, including Configuration Name, Mode (With Fingerprint), Model ID, Endpoint, Compartment OCID, User OCID, Tenancy OCID, Fingerprint, Region, and upload the corresponding Private Key.
-   
-![Apex](/images/aiagentfactory/llmconfig10.png)
+
 
 LLMConfig
 --
@@ -138,8 +136,47 @@ When to use:
 -
 Whenever your agent needs dynamic natural language generation or external model inference.
 
+6. Please provide all the requested information, including Configuration Name, Mode (With Fingerprint), Model ID, Endpoint, Compartment OCID, User OCID, Tenancy OCID, Fingerprint, Region, and upload the corresponding Private Key.
+   
+![Apex](/images/aiagentfactory/llmconfig10.png)
+
+
+Note: Please make sure the LLM Model ID you pass in the above prompt is available for your region or you will face an error (The llm name  is not in the configured llms of the user) during usage of agent prompt
+
+This page provides a list of regions where OCI Generative AI models are available 
+
+[https://docs.oracle.com/en-us/iaas/Content/generative-ai/model-endpoint-regions.htm](https://docs.oracle.com/en-us/iaas/Content/generative-ai/model-endpoint-regions.htm)
+
+--
+
+EmbeddedConfig
+--
+Purpose: Used when your agent relies on predefined rules, templates, or small models embedded directly in the agent.
+-
+Typical Use Cases:
+-
++ Rule-based responses
++ Simple data queries from a local source
++ Agents that don’t need heavy LLM computation
+
+What it contains:
+-
++ Static prompts or rules
++ Embedded scripts or logic
++ Configuration to access local data sources if needed
+
+When to use:
+-
+Lightweight agents for faster response and on-premises data access without calling an external LLM.
+
+7. Please provide all the requested information, including Configuration Name, Mode (With Fingerprint), Model ID, Endpoint, Compartment OCID, User OCID, Tenancy OCID, Fingerprint, Region, and upload the corresponding Private Key.
 
 ![Apex](/images/aiagentfactory/embeddingconfig11.png)
 
 
+Key Difference:
+-
+LLMConfig: calls an external model (more flexible, heavy-duty, needs API/key).
+
+EmbeddedConfig: uses internal logic or small embedded models (faster, no external call, less flexible).
 
