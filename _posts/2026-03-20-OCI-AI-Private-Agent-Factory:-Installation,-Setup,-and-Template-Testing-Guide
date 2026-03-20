@@ -1,18 +1,12 @@
-##Introduction
+ntroduction
 
-Oracle AI Database Private Agent Factory (Agent Factory) is a no-code platform that enables users to quickly build, test, and deploy intelligent AI agents without writing code. 
-It allows organizations to securely connect to enterprise data sources and create smart assistants using pre-built agents, custom workflows, and reusable templates.
+Oracle Corporation AI Database Private Agent Factory (Agent Factory) is a no-code platform that enables users to rapidly build, test, and deploy intelligent AI agents without writing any code. It empowers organizations to securely connect to enterprise data sources and create smart assistants using pre-built agents, customizable workflows, and reusable templates.
 
-With built-in agents like Knowledge Agent and Data Analysis Agent, along with support for multiple LLM providers and enterprise-grade security, 
-Agent Factory makes it easy to deliver scalable and governed AI solutions in minutes.
+With built-in capabilities such as the Knowledge Agent and Data Analysis Agent, along with support for multiple large language model (LLM) providers and enterprise-grade security, Agent Factory simplifies the development of scalable and governed AI solutions—often within minutes.
 
-Agent factory environment can  also be provisioned on Linux machine or mac OS, but here will be provisioning it in OCI from OCI market palce.
+While Agent Factory can be provisioned on local environments such as Linux or macOS, this blog focuses on deploying it through the Oracle Cloud Infrastructure Marketplace for a streamlined and fully managed setup experience.
 
-In this blog, I will walk through the step-by-step process of installing OCI AI Private Agent Factory on Oracle Cloud Infrastructure (OCI) 
-and demonstrate its usage by testing a sample template from the template gallery.
-
-
-1. to install this from market place , from OCI marketplace search for "AI database private agent factory".
+In this blog, I will walk you through the step-by-step process of installing OCI AI Private Agent Factory from the Marketplace and demonstrate its usage by testing a sample template from the template gallery.
 
  ![Apex](/images/aiagentfactory/marketplace01.png)
 
