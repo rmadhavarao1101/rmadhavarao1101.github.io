@@ -183,15 +183,24 @@ LLMConfig: calls an external model (more flexible, heavy-duty, needs API/key).
 EmbeddedConfig: uses internal logic or small embedded models (faster, no external call, less flexible).
 
 
+Running a test using a template from the Template Gallery.
+--
 
-
-This is what the OCI Private Agent Factory interface looks like:
+1. This is what the OCI Private Agent Factory interface looks like:
 
 ![Apex](/images/aiagentfactory/privatefactory_dashboard12.png)
 
-Testing the inbuilt
-
+2. Click on "template gallery" and import "meeting summary item extractor."
 
 ![Apex](/images/aiagentfactory/tempelategalarry13.png)
+
+3. Now, select the LLM to use (from the LLM configuration you set up earlier), give the workflow a name, save it, and click on 'Playground' to test.
+
+![Apex](/images/aiagentfactory/Workfloe14.png)
+
+
+
+
+
 
 
