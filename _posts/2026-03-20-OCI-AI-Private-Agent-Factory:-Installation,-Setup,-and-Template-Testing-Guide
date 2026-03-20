@@ -1,7 +1,13 @@
 ##Introduction
 
-Oracle AI Database Private Agent Factory (Agent Factory) is a no-code platform that enables users to quickly build, test, and deploy intelligent AI agents without writing code. It allows organizations to securely connect to enterprise data sources and create smart assistants using pre-built agents, custom workflows, and reusable templates.
+Oracle AI Database Private Agent Factory (Agent Factory) is a no-code platform that enables users to quickly build, test, and deploy intelligent AI agents without writing code. 
+It allows organizations to securely connect to enterprise data sources and create smart assistants using pre-built agents, custom workflows, and reusable templates.
 
-With built-in agents like Knowledge Agent and Data Analysis Agent, along with support for multiple LLM providers and enterprise-grade security, Agent Factory makes it easy to deliver scalable and governed AI solutions in minutes.
+With built-in agents like Knowledge Agent and Data Analysis Agent, along with support for multiple LLM providers and enterprise-grade security, 
+Agent Factory makes it easy to deliver scalable and governed AI solutions in minutes.
 
-In this blog, I will walk through the step-by-step process of installing OCI AI Private Agent Factory on Oracle Cloud Infrastructure (OCI) and demonstrate its usage by testing a sample template from the template gallery.
+In this blog, I will walk through the step-by-step process of installing OCI AI Private Agent Factory on Oracle Cloud Infrastructure (OCI) 
+and demonstrate its usage by testing a sample template from the template gallery.
+
+
+
