@@ -140,8 +140,9 @@ Whenever your agent needs dynamic natural language generation or external model 
    
 ![Apex](/images/aiagentfactory/llmconfig10.png)
 
+Once the test connection is successful, please save the configuration.
 
-Note: Please make sure the LLM Model ID you pass in the above prompt is available for your region or you will face an error (The llm name  is not in the configured llms of the user) during usage of agent prompt
+Note: Please ensure that the LLM Model ID you provide in the prompt is available in your region; otherwise, you may encounter the error: 'The LLM name is not in the configured LLMs for the user' when using the agent prompt.
 
 This page provides a list of regions where OCI Generative AI models are available 
 
@@ -173,10 +174,24 @@ Lightweight agents for faster response and on-premises data access without calli
 
 ![Apex](/images/aiagentfactory/embeddingconfig11.png)
 
+Once the test connection is successful, please save the configuration.
 
 Key Difference:
 -
 LLMConfig: calls an external model (more flexible, heavy-duty, needs API/key).
 
 EmbeddedConfig: uses internal logic or small embedded models (faster, no external call, less flexible).
+
+
+
+
+This is what the OCI Private Agent Factory interface looks like:
+
+![Apex](/images/aiagentfactory/privatefactory_dashboard12.png)
+
+Testing the inbuilt
+
+
+![Apex](/images/aiagentfactory/tempelategalarry13.png)
+
 
