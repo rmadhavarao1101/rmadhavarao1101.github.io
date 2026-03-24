@@ -59,7 +59,7 @@ Ensure the data source is created successfully and its status displays as 'Conne
 
 7. Open Agent and review captured data
 
-   
+   ![Apex](/images/dataanalysysagent/openagent_08.png)   
 
 8. Generate reports and insights   
 
