@@ -55,7 +55,7 @@ Ensure the data source is created successfully and its status displays as 'Conne
 
 5. Create Agent
 
-   ![Apex](/images/dataanalysysagent/OCreateagent_04.png)
+   ![Apex](/images/dataanalysysagent/Createagent_04.png)
 
 7. Open Agent and review captured data
 
