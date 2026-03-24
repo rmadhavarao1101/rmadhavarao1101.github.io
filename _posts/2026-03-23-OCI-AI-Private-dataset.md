@@ -63,9 +63,16 @@ Ensure the data source is created successfully and its status displays as 'Conne
 
 8. Generate reports and insights   
 
-   Open the agent to review the captured data and analyze the insights generated from it.
+   Now let us execute the exploration for the agent to analyze the data and generate insights.
 
-   ![Apex](/images/dataanalysysagent/PublishAgent06.png)
+   ![Apex](/images/dataanalysysagent/Exploration_09.png)
+
+   Next, we will request the agent to analyze wait events between 10:00 AM and 11:00 AM.
+   ![Apex](/images/dataanalysysagent/Message_10.png)
+   ![Apex](/images/dataanalysysagent/Graphoutput_11.png)
+   ![Apex](/images/dataanalysysagent/Sql_12.png)
+
+   As shown, the agent generated the SQL query, a graphical visualization, and a summary message explaining the findings from the data.
    
 
 
