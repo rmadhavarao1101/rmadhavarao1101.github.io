@@ -53,7 +53,9 @@ Ensure the data source is created successfully and its status displays as 'Conne
 
    ![Apex](/images/dataanalysysagent/Createagent_04.png)
 
-   Note: REPORTSADMIN.ASH_REPORT_AGENT_T is created from an extract of DBA_HIST_ACTIVE_SESS_HISTORY. 
+   Note: REPORTSADMIN.ASH_REPORT_AGENT_T is created from an extract of DBA_HIST_ACTIVE_SESS_HISTORY.
+
+   Here, we are testing the Data Analysis Agent using system data; however, it can be connected to your business data for full-scale analysis and reporting.
 
 6. Publish Agent
 
