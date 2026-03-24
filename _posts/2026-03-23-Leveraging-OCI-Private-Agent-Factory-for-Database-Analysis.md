@@ -75,6 +75,15 @@ Ensure the data source is created successfully and its status displays as 'Conne
    ![Apex](/images/dataanalysysagent/Sql_12.png)
 
    As shown, the agent generated the SQL query, a graphical visualization, and a summary message explaining the findings from the data.
+
+   In this blog, we explored how to leverage the Data Analysis Agent in OCI AI Database Private Agent Factory to extract meaningful insights from your database. We demonstrated how to:
+
+   + Create a database data source and verify connectivity.
+   + Build a Data Analysis Agent and select tables or views (like ASH_REPORT_AGENT_T) for analysis.
+   + Execute exploration tasks to generate SQL queries, visualizations, and summaries automatically.
+   + Analyze specific time windows and understand session activity through aggregated data from DBA_HIST_ACTIVE_SESS_HISTORY.
+
+   Using the agent, you can quickly transform raw database metrics into actionable insights, eliminating the need to manually write queries or generate reports.
    
 
 
