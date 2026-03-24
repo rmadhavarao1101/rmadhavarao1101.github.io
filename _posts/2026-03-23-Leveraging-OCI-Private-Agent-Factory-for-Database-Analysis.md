@@ -53,7 +53,9 @@ Ensure the data source is created successfully and its status displays as 'Conne
 
    ![Apex](/images/dataanalysysagent/Createagent_04.png)
 
-5. Publish Agent
+   Note: REPORTSADMIN.ASH_REPORT_AGENT_T is created from an extract of DBA_HIST_ACTIVE_SESS_HISTORY. 
+
+6. Publish Agent
 
    ![Apex](/images/dataanalysysagent/PublishAgent06.png)
 
