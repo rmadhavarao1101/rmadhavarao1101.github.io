@@ -65,7 +65,7 @@ Ensure the data source is created successfully and its status displays as 'Conne
 
 8. Generate reports and insights   
 
-   Now let us execute the exploration for the agent to analyze the data and generate insights.
+   Now let us "execute exploration" for the agent to analyze the data and generate insights.
 
    ![Apex](/images/dataanalysysagent/Exploration_09.png)
 
