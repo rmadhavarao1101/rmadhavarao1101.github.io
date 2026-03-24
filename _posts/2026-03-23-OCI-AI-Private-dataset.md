@@ -42,7 +42,7 @@ Ensure the data source is created successfully and its status displays as 'Conne
 
 3. Create Data Analysis Agent
 
-  After successfully creating the database data source, the next step is to create a Data Analysis Agent. Go to ‘Data Analysis Agent’, select the previously created data source, and choose the table or view that will be used for data analysis and report generation.
+  After successfully creating the database data source, the next step is to create a Data Analysis Agent. 
 
   ![Apex](/images/dataanalysysagent/DataAnalysis_agent03.png)
 
@@ -51,11 +51,11 @@ Ensure the data source is created successfully and its status displays as 'Conne
 
    Go to ‘Data Analysis Agent’, select the previously created data source, and choose the table or view that will be used for data analysis and report generation.
 
-   
+   ![Apex](/images/dataanalysysagent/Createagent_04.png)
 
 5. Create Agent
 
-   ![Apex](/images/dataanalysysagent/Createagent_04.png)
+   
 
 7. Open Agent and review captured data
 
