@@ -57,13 +57,13 @@ Ensure the data source is created successfully and its status displays as 'Conne
 
    ![Apex](/images/dataanalysysagent/PublishAgent06.png)
 
-7. Open Agent and review captured data
+7. Open Agent 
 
    ![Apex](/images/dataanalysysagent/openagent_08.png)   
 
 8. Generate reports and insights   
 
-   Now that we have successfully created the agent, let’s open it and review the data that has been captured and what insights it provides.
+   Open the agent to review the captured data and analyze the insights generated from it.
 
    ![Apex](/images/dataanalysysagent/PublishAgent06.png)
    
