@@ -53,13 +53,13 @@ Ensure the data source is created successfully and its status displays as 'Conne
 
    ![Apex](/images/dataanalysysagent/Createagent_04.png)
 
-5. Create Agent
+5. Publish Agent
 
-   
+   ![Apex](/images/dataanalysysagent/PublishAgent06.png)
 
 7. Open Agent and review captured data
 
-   ![Apex](/images/dataanalysysagent/PublishAgent06.png)
+   
 
 8. Generate reports and insights   
 
