@@ -283,10 +283,10 @@ A single large Terraform stack is simple to write, but not always reliable in re
 
 Layering Terraform code improves:
 
-Stability
-Predictability
-Debugging
-Reusability
+- Stability
+- Predictability
+- Debugging
+- Reusability
 
 
 
