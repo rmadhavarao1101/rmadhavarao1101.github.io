@@ -1,1 +1,31 @@
 
+Recently I was testing my terrform code in my compartment for creating a three tire architecture , with  network resources, App server, db server. One of the  requirement was to suffix OCI region code in resource name. example if we are creating network resournce in Toronto region the name should stand like vcn-devops-ord-01 (resource_name-devops-regioncode-01). and our tenancy home region is Toronto and for this cient we had to create resources in Chicago region.
+
+In this blog I would like to explain why it is important to split your terrform code into layers then having one big module.
+
+
+As I mentioned earlier my home region is toroto and trying to create resournces in Chicago region.
+
+
+For testing purpose I had created a config in single layer and planning and applying terrform with a single command like terrform plan and terraform apply.
+
+So to start with in my terrform.tfvarfile I am calling all the variablea and the pasing the target region as below:
+
+```sh
+##Necessary fields required for connecting to the target OCI tenancy
+
+user_ocid        = "ocid1.user.oc1..aaaaaaaa44yre4fqhotsfvchi6r35oa5ielymjlpbrim5v7lkjonli7wriqa"
+fingerprint      = "b2:bd:c1:fa:34:4a:7c:3f:8d:7e:b0:4d:d6:f3:b2:28"
+private_key_path = "/Users/Rajesh.Madhavarao/.ssh/devops_bastion.pem"
+tenancy_ocid     = "ocid1.tenancy.oc1..aaaaaaaaqkfafm7ykyzmszzdoe3hvimyx5dszcvg7fiju4tjrkkqt7crdn7a"
+compartment_ocid = "ocid1.compartment.oc1..aaaaaaaaskpl4e64lckhvjyzpn2amztpnuqq4mo2gjag6si3272kgdzcnwja"
+region_name      = "us-chicago-1"
+
+
+##Client Name
+
+client_name  = "devops"
+
+```
+
+
