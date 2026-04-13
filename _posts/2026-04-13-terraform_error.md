@@ -6,12 +6,20 @@ One of the requirements was to include the OCI region code as a suffix in resour
 ```sh
 vcn-devops-ord-01
 ```
-(format: resource_name-client-regioncode-sequence)
+(format:resource_name-client-regioncode-sequence)
+
+Environment Context:
+---
 
 In my case:
+--
 
-The tenancy home region is Toronto (ca-toronto-1, region key: YYZ)
-But the resources for this client needed to be deployed in Chicago (us-chicago-1, region key: ORD)
+- The tenancy home region is Toronto (ca-toronto-1, region key: YYZ)
+- The target deployment region is Chicago (us-chicago-1, region key: ORD)
+
+Required Terraform inputs:
+---
+Below are the key variables required to connect to the OCI tenancy:
 
 ```sh
 ##Necessary fields required for connecting to the target OCI tenancy
@@ -22,22 +30,22 @@ private_key_path = "/Users/Rajesh.Madhavarao/.ssh/devops_oad.pem"
 tenancy_ocid     = "ocid1.tenancy.oc1..testtesttesttest"
 compartment_ocid = "ocid1.compartment.oc1..testtesttesttest"
 region_name      = "us-chicago-1"
+```
 
+Client Identifier:
+---
 
+```sh
 ##Client Name
 
 client_name  = "devops"
 
 ```
-and I am fetcing the region code thru my data.tf  and output.tf file
+Fetching region code dynamically
+
+To dynamically fetch the region key (e.g., ORD for Chicago), I used the following data source:
 
 ```sh
-
-output "home_region_key" {
-  value = data.oci_identity_region_subscriptions.this.region_subscriptions[0].region_key
-}
-
-
 data "oci_identity_region_subscriptions" "this" {
   tenancy_id = var.tenancy_ocid
   filter {
@@ -46,13 +54,25 @@ data "oci_identity_region_subscriptions" "this" {
 }
 }
 ```
+and exposed via output
+
+```sh
+output "target_region_key" {
+  value = data.oci_identity_region_subscriptions.this.region_subscriptions[0].region_key
+}
+```
+
+At this point, everything looked straightforward. I initially implemented the entire setup in a single Terraform layer and attempted to deploy all resources using a single terraform apply. However, this approach led to unexpected issues—especially when dealing with cross-region constraints and identity resources.
+
+This is where the importance of layering Terraform code becomes critical.
 
 What this blog is about
+---
 
 In this blog, I’ll walk through a common issue I encountered and explain why it’s important to split Terraform code into layers, instead of managing everything in a single configuration.
 
 Initial approach
-
+---
 For testing purposes, I initially built everything in a single Terraform layer, where:
 
 Compartments (Identity)
@@ -63,44 +83,11 @@ were all defined together.
 
 I then executed a standard workflow:
 
+```sh
 terraform plan
 terraform apply
-
-At the same time, I passed the target region (Chicago) through my terraform.tfvars file, which was used across the configuration.
-
-```sh
-##Necessary fields required for connecting to the target OCI tenancy
-
-user_ocid        = "ocid1.user.oc1..testtesttesttest"
-fingerprint      = "3j:3k:test:test"
-private_key_path = "/Users/Rajesh.Madhavarao/.ssh/devops_oad.pem"
-tenancy_ocid     = "ocid1.tenancy.oc1..testtesttesttest"
-compartment_ocid = "ocid1.compartment.oc1..testtesttesttest"
-region_name      = "us-chicago-1"
-
-
-##Client Name
-
-client_name  = "devops"
-
 ```
-and I am fetcing the region code thru my data.tf  and output.tf file
 
-```sh
-
-output "home_region_key" {
-  value = data.oci_identity_region_subscriptions.this.region_subscriptions[0].region_key
-}
-
-
-data "oci_identity_region_subscriptions" "this" {
-  tenancy_id = var.tenancy_ocid
-  filter {
- name   = "region_name"
-    values = [var.region_name]
-}
-}
-```
 
 
 Now, let us try to execute the Terraform code and apply the resources
