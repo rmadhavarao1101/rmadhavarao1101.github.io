@@ -190,6 +190,39 @@ As a result, when Terraform attempted to create the VCN, OCI returned:
 404-NotAuthorizedOrNotFound
 ```
 
-Even though the compartment technically existed.
+To handle this kind of issues we need to implement folder based layers as below:
+
+```sh
+
+terraform/
+│
+├── 01-identity/
+│   ├── provider.tf
+│   ├── variables.tf
+│   ├── terraform.tfvars
+│   ├── data.tf
+│   ├── locals.tf
+│   └── compartment.tf
+│
+├── 02-network/
+│   ├── provider.tf
+│   ├── variables.tf
+│   ├── terraform.tfvars
+│   ├── data.tf
+│   ├── locals.tf
+│   ├── vcn.tf
+│   ├── subnet.tf
+│   └── output.tf
+│
+├── 03-compute/
+│   ├── application.tf
+│   ├── database.tf
+│   ├── bastion*.tf
+│
+└── shared/
+    ├── variables.tf (optional common vars)
+
+```
+
 
 
