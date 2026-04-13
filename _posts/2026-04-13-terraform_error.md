@@ -225,5 +225,40 @@ terraform/
 
 ```
 
+Execution Flow 
+---
+
+1. Identity
+
+```sh
+cd 01-identity
+terraform init
+terraform apply
+```
+
+This creates compartments
+Wait ~30–60 seconds (or just naturally move to next step)
+
+2. Network
+
+```sh
+cd ../02-network
+terraform init
+terraform apply
+```
+
+This Creates:
+
+VCN
+Subnets
+NAT / IG / SGW
+3.  Compute and DB
+
+```sh
+cd ../03-compute
+terraform init
+terraform apply
+```
+
 
 
