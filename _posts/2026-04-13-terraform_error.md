@@ -265,6 +265,29 @@ terraform apply
 
 This ensured compartments were fully propagated before network provisioning began.
 
+Key takeaway
+---
+Even though Terraform is declarative, cloud APIs are eventually consistent.
+
+So in OCI, especially for Identity → Networking dependencies:
+
+- Compartments must fully propagate before VCN creation
+- Splitting Terraform into layers avoids race conditions
+- -target can be useful for controlled initialization, but should not be permanent practice
+
+Conclusion
+---
+This experience reinforced an important lesson:
+
+A single large Terraform stack is simple to write, but not always reliable in real cloud environments like OCI.
+
+Layering Terraform code improves:
+
+Stability
+Predictability
+Debugging
+Reusability
+
 
 
 
