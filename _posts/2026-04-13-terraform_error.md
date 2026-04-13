@@ -89,33 +89,24 @@ terraform apply
 ```
 
 
-
-Now, let us try to execute the Terraform code and apply the resources
+Terraform Execution:
+--
+The plan is looking perfectly fine
 
 ```sh
 
 Rajesh.Madhavarao@Eclipsyss-MacBook-Pro regiontest % terraform plan
-data.oci_identity_regions.all_regions: Reading...
-data.oci_identity_availability_domain.ad: Reading...
-data.oci_identity_region_subscriptions.this: Reading...
-data.oci_identity_availability_domains.ads: Reading...
-data.oci_core_services.all_oci_services[0]: Reading...
-data.oci_core_images.all_windows_images: Reading...
-data.oci_identity_availability_domain.ad: Read complete after 0s [id=ocid1.availabilitydomain.oc1..aaaaaaaave3zavc6gqeces7x4s4kwoqvyuszk4uiaee3lcma4cq4jb4gmx5q]
-.
-.
-.
-.
+
 Plan: 19 to add, 0 to change, 0 to destroy.
 
 Changes to Outputs:
-  ~ security_list_id               = "ocid1.securitylist.oc1.us-chicago-1.aaaaaaaae3reg6cpuhd5vokdjagj6ndmibdckhnd4wewi47lf2jei2uusiya" -> (known after apply)
+  ~ security_list_id               = "ocid1.securitylist.oc1.us-chicago-1.test" -> (known after apply)
   ~ service_gateway_all_attributes = {
       ~ "0" = {
           ~ block_traffic  = false -> (known after apply)
-          ~ compartment_id = "ocid1.compartment.oc1..aaaaaaaatgce3wutmuqmkaatrmly2p2qhqmraqsay2fh4h42c3tftlecstsa" -> (known after apply)
+          ~ compartment_id = "ocid1.compartment.oc1..test" -> (known after apply)
           ~ defined_tags   = {} -> (known after apply)
-          ~ id             = "ocid1.servicegateway.oc1.us-chicago-1.aaaaaaaa5zcvjtcu746kpga5szepqtqtdvfjoehp6hqsiwx5ubpmgpod2wrq" -> (known after apply)
+          ~ id             = "ocid1.servicegateway.oc1.us-chicago-1.test" -> (known after apply)
           + route_table_id = (known after apply)
           ~ services       = [
               ~ {
@@ -125,91 +116,47 @@ Changes to Outputs:
             ]
           ~ state          = "AVAILABLE" -> (known after apply)
           ~ time_created   = "2026-04-10 16:26:15.053 +0000 UTC" -> (known after apply)
-          ~ vcn_id         = "ocid1.vcn.oc1.us-chicago-1.amaaaaaavrxjjqyarv7xhiz52ljfpbspjxe4m7z7cxujoyf7fe2tt4lkrp6a" -> (known after apply)
+          ~ vcn_id         = "ocid1.vcn.oc1.us-chicago-1.test" -> (known after apply)
             # (3 unchanged attributes hidden)
         }
     }
-  ~ service_gateway_id             = "ocid1.servicegateway.oc1.us-chicago-1.aaaaaaaa5zcvjtcu746kpga5szepqtqtdvfjoehp6hqsiwx5ubpmgpod2wrq" -> (known after apply)
+  ~ service_gateway_id             = "ocid1.servicegateway.oc1.us-chicago-1.test" -> (known after apply)
 
 ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 Note: You didn't use the -out option to save this plan, so Terraform can't guarantee to take exactly these actions if you run "terraform apply"
 now.
 
+```
+However, during terraform apply, things started to break.
 
+Terraform successfully created the compartments:
 
-
+```sh
 Rajesh.Madhavarao@Eclipsyss-MacBook-Pro regiontest % terraform apply
-data.oci_core_services.all_oci_services[0]: Reading...
-data.oci_identity_availability_domains.ads: Reading...
-data.oci_identity_regions.all_regions: Reading...
-data.oci_identity_availability_domain.ad: Reading...
-data.oci_core_images.all_windows_images: Reading...
-data.oci_identity_region_subscriptions.this: Reading...
-data.oci_identity_availability_domain.ad: Read complete after 0s [id=ocid1.availabilitydomain.oc1..aaaaaaaave3zavc6gqeces7x4s4kwoqvyuszk4uiaee3lcma4cq4jb4gmx5q]
-data.oci_identity_region_subscriptions.this: Read complete after 0s [id=IdentityRegionSubscriptionsDataSource-136365222]
-oci_identity_compartment.parent_compartment: Refreshing state... [id=ocid1.compartment.oc1..aaaaaaaa3s3emkreseetotvibn7j4yphcc7cnp6prjp3m46kdza3rcjgjpga]
-.
-.
-.
-Plan: 19 to add, 0 to change, 0 to destroy.
-
-Changes to Outputs:
-  ~ security_list_id               = "ocid1.securitylist.oc1.us-chicago-1.aaaaaaaae3reg6cpuhd5vokdjagj6ndmibdckhnd4wewi47lf2jei2uusiya" -> (known after apply)
-  ~ service_gateway_all_attributes = {
-      ~ "0" = {
-          ~ block_traffic  = false -> (known after apply)
-          ~ compartment_id = "ocid1.compartment.oc1..aaaaaaaatgce3wutmuqmkaatrmly2p2qhqmraqsay2fh4h42c3tftlecstsa" -> (known after apply)
-          ~ defined_tags   = {} -> (known after apply)
-          ~ id             = "ocid1.servicegateway.oc1.us-chicago-1.aaaaaaaa5zcvjtcu746kpga5szepqtqtdvfjoehp6hqsiwx5ubpmgpod2wrq" -> (known after apply)
-          + route_table_id = (known after apply)
-          ~ services       = [
-              ~ {
-                  ~ service_name = "All ORD Services In Oracle Services Network" -> (known after apply)
-                    # (1 unchanged attribute hidden)
-                },
-            ]
-          ~ state          = "AVAILABLE" -> (known after apply)
-          ~ time_created   = "2026-04-10 16:26:15.053 +0000 UTC" -> (known after apply)
-          ~ vcn_id         = "ocid1.vcn.oc1.us-chicago-1.amaaaaaavrxjjqyarv7xhiz52ljfpbspjxe4m7z7cxujoyf7fe2tt4lkrp6a" -> (known after apply)
-            # (3 unchanged attributes hidden)
-        }
-    }
-  ~ service_gateway_id             = "ocid1.servicegateway.oc1.us-chicago-1.aaaaaaaa5zcvjtcu746kpga5szepqtqtdvfjoehp6hqsiwx5ubpmgpod2wrq" -> (known after apply)
-
-Do you want to perform these actions?
-  Terraform will perform the actions described above.
-  Only 'yes' will be accepted to approve.
-
-  Enter a value: yes
-
-Do you want to perform these actions?
-  Terraform will perform the actions described above.
-  Only 'yes' will be accepted to approve.
-
-  Enter a value: yes
+ 
 
 oci_identity_compartment.parent_compartment: Creating...
-oci_identity_compartment.parent_compartment: Creation complete after 8s [id=ocid1.compartment.oc1..aaaaaaaaih5xpsjhwkdhupbn3qcqbeaiq5m3ahydu7nr2edcxeuy4h2ovtzq]
+oci_identity_compartment.parent_compartment: Creation complete after 8s [id=ocid1.compartment.oc1..test]
 oci_identity_compartment.sub_compartments_reco: Creating...
 oci_identity_compartment.sub_compartment_sec: Creating...
 oci_identity_compartment.sub_compartment_app: Creating...
 oci_identity_compartment.sub_compartments_db: Creating...
 oci_identity_compartment.sub_compartment_net: Creating...
-oci_identity_compartment.sub_compartment_net: Creation complete after 7s [id=ocid1.compartment.oc1..aaaaaaaakrue2gcwdu4sledyykymsgjp3lpbbts2bwto2qkdlejdoxogfbda]
+oci_identity_compartment.sub_compartment_net: Creation complete after 7s [id=ocid1.compartment.oc1..test]
 oci_core_vcn.vcn1: Creating...
-oci_identity_compartment.sub_compartments_db: Creation complete after 8s [id=ocid1.compartment.oc1..aaaaaaaadauhdsuzihln3dstnx4376bqfbmwzuubjvvevigh5576ndn4o32a]
-oci_identity_compartment.sub_compartment_sec: Creation complete after 8s [id=ocid1.compartment.oc1..aaaaaaaaikiwkecjosdkwvqzf5kgsmasoqsftsjuli6j4hqjw7gdibfb4seq]
+oci_identity_compartment.sub_compartments_db: Creation complete after 8s [id=ocid1.compartment.oc1..test]
+oci_identity_compartment.sub_compartment_sec: Creation complete after 8s [id=ocid1.compartment.oc1..test]
 oci_identity_compartment.sub_compartments_reco: Still creating... [10s elapsed]
 oci_identity_compartment.sub_compartment_app: Still creating... [10s elapsed]
-oci_identity_compartment.sub_compartments_reco: Creation complete after 11s [id=ocid1.compartment.oc1..aaaaaaaamtcgwcpdcnlrub7lqxcupjfclmfqgy3np57grnvvtbvwt4zxhn4q]
-oci_identity_compartment.sub_compartment_app: Creation complete after 14s [id=ocid1.compartment.oc1..aaaaaaaapmzfam3oosgz5grvidcoiwqjilbylskwcnuseryrgsesaufydsza]
+oci_identity_compartment.sub_compartments_reco: Creation complete after 11s [id=ocid1.compartment.oc1..test]
+oci_identity_compartment.sub_compartment_app: Creation complete after 14s [id=ocid1.compartment.oc1..test]
 ╷
 │ Error: 404-NotAuthorizedOrNotFound, Authorization failed or requested resource not found.
 │ Suggestion: Either the resource has been deleted or service Core Vcn need policy to access this resource. Policy reference: https://docs.oracle.com/en-us/iaas/Content/Identity/Reference/policyreference.htm
 │ Documentation: https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/core_vcn 
-│ API Reference: https://docs.oracle.com/iaas/api/#/en/iaas/20160918/Vcn/CreateVcn 
-│ Request Target: POST https://iaas.us-chicago-1.oraclecloud.com/20160918/vcns 
+│ API Reference: https://docs.oracle.com/iaas/api/#/en/iaas/020292929/Vcn/CreateVcn 
+│ Request Target: POST https://iaas.us-chicago-1.oraclecloud.com/20929392929/vcns 
 │ Provider version: 8.6.0, released on 2026-03-17. This provider is 3 Update(s) behind to current. 
 │ Service: Core Vcn 
 │ Operation Name: CreateVcn 
@@ -222,10 +169,27 @@ oci_identity_compartment.sub_compartment_app: Creation complete after 14s [id=oc
 
 ```
 
-As we can see the compartments created successfully but when the terrform code is trying to create dependency resources like VCN we are hitting error like "404-NotAuthorizedOrNotFound, Authorization failed or requested resource not found.", as I have tested this various times and I have sufficient privileges, this issue is not related to IAM policy.
+As you can see when it attempted to create dependent resources like the VCN, it failed with the above error "Error: 404-NotAuthorizedOrNotFound, Authorization failed or requested resource not found."
 
-Rather what is happending here is the terraform code is create the compartments, but since compartment is created globally and can be ussed by all regions, it is taking few seconds to be reflecting or bevailable to create network resources>
+It looks like this error is related to IAM policies, but the required permissions are already in place and compartments are already created.
 
-So how do we handle this scenario,
+The actual reason is:
+---
+
+OCI Identity resources (like compartments) are global, but their propagation across regions is not instantaneous.
+
+In this case:
+
+- Compartments were created in the home region (Toronto / YYZ)
+- Terraform immediately tried to use them in the target region (Chicago / ORD)
+- Due to propagation delay, the compartments were not yet fully available in the Chicago region
+
+As a result, when Terraform attempted to create the VCN, OCI returned:
+
+```sh
+404-NotAuthorizedOrNotFound
+```
+
+Even though the compartment technically existed.
 
 
