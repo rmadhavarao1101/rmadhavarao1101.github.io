@@ -1,4 +1,7 @@
 
+Introduction:
+---
+
 Recently, I was testing my Terraform code in OCI to build a three-tier architecture, including network components (VCN, public and private subnets, NAT Gateway, Service Gateway, route tables, and security lists), along with application and database servers.
 
 One of the requirements was to include the OCI region code as a suffix in resource names. For example, if a resource is created for the Chicago region, the naming convention should look like:
@@ -196,6 +199,11 @@ This is one of the main reasons to split Terraform code into folder-based layers
 ```sh
 
 terraform/
+├── 01-identity   → compartments
+├── 02-network    → VCN, subnets, gateways
+├── 03-compute    → app + DB resources
+
+terraform/
 │
 ├── 01-identity/
 │   ├── provider.tf
@@ -228,37 +236,36 @@ terraform/
 Execution Flow 
 ---
 
-1. Identity
+
+
+Instead of a single apply, I executed Terraform in stages:
+
+Step 1: Identity layer
 
 ```sh
+
 cd 01-identity
-terraform init
-terraform apply
+terraform apply \
+  -target=oci_identity_compartment.parent_compartment \
+  -target=oci_identity_compartment.sub_compartment_app \
+  -target=oci_identity_compartment.sub_compartment_net \
+  -target=oci_identity_compartment.sub_compartment_sec \
+  -target=oci_identity_compartment.sub_compartments_db \
+  -target=oci_identity_compartment.sub_compartments_reco
+
 ```
 
-This creates compartments
-Wait ~30–60 seconds (or just naturally move to next step)
-
-2. Network
+Step 2: Network layer
 
 ```sh
-cd ../02-network
-terraform init
+
+cd 02-network
 terraform apply
 ```
 
-This Creates:
+This ensured compartments were fully propagated before network provisioning began.
 
-VCN
-Subnets
-NAT / IG / SGW
-3.  Compute and DB
 
-```sh
-cd ../03-compute
-terraform init
-terraform apply
-```
 
 
 
