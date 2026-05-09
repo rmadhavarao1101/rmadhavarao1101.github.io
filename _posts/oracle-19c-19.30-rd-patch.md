@@ -1,0 +1,372 @@
+# Patching Oracle Database 19c from 19.3 to 19.30 (January 2026 RU)
+
+A step-by-step walkthrough of applying the **January 2026 Release Update (Patch 38632161)** to a single-instance Oracle 19c database, going from base release `19.3.0.0.0` to `19.30.0.0.0`.
+
+> **Environment**
+> - **Host:** `devdb01`
+> - **OS user:** `oracle`
+> - **`ORACLE_HOME`:** `/u01/oracle/19.3.0`
+> - **`ORACLE_BASE`:** `/u01/oracle`
+> - **`ORACLE_SID`:** `semst19`
+> - **DB:** `SEMST19` (single instance, non-CDB)
+> - **OPatch:** `12.2.0.1.51`
+> - **Patch staged at:** `/backup/Stage/p38632161/38632161`
+
+---
+
+## Table of Contents
+
+- [1. Pre-checks](#1-pre-checks)
+- [2. Take a backup (do not skip)](#2-take-a-backup-do-not-skip)
+- [3. Shut down the database and listener](#3-shut-down-the-database-and-listener)
+- [4. Apply the binary patch with OPatch](#4-apply-the-binary-patch-with-opatch)
+- [5. Start the database](#5-start-the-database)
+- [6. Run datapatch sanity checks](#6-run-datapatch-sanity-checks)
+- [7. Run datapatch](#7-run-datapatch)
+- [8. Verify](#8-verify)
+- [Notes and gotchas](#notes-and-gotchas)
+
+---
+
+## 1. Pre-checks
+
+Confirm the current version, OPatch version, and that the patch has no conflicts.
+
+```bash
+$ sqlplus / as sysdba
+```
+
+```sql
+SQL*Plus: Release 19.0.0.0.0 - Production on Thu May 7 09:29:28 2026
+Version 19.3.0.0.0
+
+Connected to:
+Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production
+Version 19.3.0.0.0
+
+SQL> exit
+```
+
+```bash
+$ opatch version
+OPatch Version: 12.2.0.1.51
+
+OPatch succeeded.
+```
+
+> ⚠️ **Always check the patch README first** for the minimum required OPatch version. If yours is older, download the latest OPatch (Patch 6880880) and replace `$ORACLE_HOME/OPatch` before continuing.
+
+Run the conflict check from the staged patch directory:
+
+```bash
+$ cd /backup/Stage/p38632161/38632161
+$ opatch prereq CheckConflictAgainstOHWithDetail -ph ./
+```
+
+```text
+Oracle Interim Patch Installer version 12.2.0.1.51
+...
+Invoking prereq "checkconflictagainstohwithdetail"
+
+Prereq "checkConflictAgainstOHWithDetail" passed.
+
+OPatch succeeded.
+```
+
+✅ No conflicts. Safe to proceed.
+
+---
+
+## 2. Take a backup (do not skip)
+
+Before touching `$ORACLE_HOME`, take a backup. At minimum:
+
+```bash
+# Cold copy of the Oracle Home (run while DB is down — see step 3)
+tar -czf /backup/oracle_home_19.3.0_pre38632161.tar.gz /u01/oracle/19.3.0
+
+# And/or an RMAN level 0 backup of the database
+rman target /
+RMAN> BACKUP DATABASE PLUS ARCHIVELOG;
+```
+
+If something goes sideways during `opatch apply`, having the home tarball lets you restore in minutes.
+
+---
+
+## 3. Shut down the database and listener
+
+```sql
+SQL> select name from v$database;
+
+NAME
+---------
+SEMST19
+
+SQL> shutdown immediate;
+Database closed.
+Database dismounted.
+ORACLE instance shut down.
+```
+
+Stop the listener as well:
+
+```bash
+$ lsnrctl stop
+```
+
+---
+
+## 4. Apply the binary patch with OPatch
+
+```bash
+$ cd /backup/Stage/p38632161/38632161
+$ opatch apply
+```
+
+```text
+Oracle Interim Patch Installer version 12.2.0.1.51
+Copyright (c) 2026, Oracle Corporation.  All rights reserved.
+
+Oracle Home       : /u01/oracle/19.3.0
+Central Inventory : /u01/app/oraInventory
+   from           : /u01/oracle/19.3.0/oraInst.loc
+OPatch version    : 12.2.0.1.51
+OUI version       : 12.2.0.7.0
+Log file location : /u01/oracle/19.3.0/cfgtoollogs/opatch/opatch2026-05-07_09-46-51AM_1.log
+
+Verifying environment and performing prerequisite checks...
+OPatch continues with these patches:   38632161
+
+Do you want to proceed? [y|n]
+y
+
+Please shutdown Oracle instances running out of this ORACLE_HOME on the local system.
+(Oracle Home = '/u01/oracle/19.3.0')
+
+Is the local system ready for patching? [y|n]
+y
+
+Backing up files...
+Applying interim patch '38632161' to OH '/u01/oracle/19.3.0'
+
+Patching component oracle.rdbms.rsf, 19.0.0.0.0...
+Patching component oracle.rdbms, 19.0.0.0.0...
+... (many components patched) ...
+Patching component oracle.jdk, 1.8.0.201.0...
+
+Patch 38632161 successfully applied.
+Sub-set patch [29517242] has become inactive due to the application of a super-set patch [38632161].
+Please refer to Doc ID 2161861.1 for any possible further required actions.
+
+OPatch succeeded.
+```
+
+The previous RU (`29517242` — 19.3 RU from April 2019) is now superseded by `38632161`. That's expected.
+
+---
+
+## 5. Start the database
+
+```bash
+$ sqlplus / as sysdba
+```
+
+```sql
+SQL*Plus: Release 19.0.0.0.0 - Production on Thu May 7 10:07:36 2026
+Version 19.30.0.0.0
+
+Connected to an idle instance.
+
+SQL> startup;
+ORACLE instance started.
+
+Total System Global Area 6459224208 bytes
+Fixed Size                  8954000 bytes
+Variable Size            1191182336 bytes
+Database Buffers         5234491392 bytes
+Redo Buffers               24596480 bytes
+Database mounted.
+Database opened.
+```
+
+Notice the SQL\*Plus banner already shows **`Version 19.30.0.0.0`** — that's the binary version after the home was patched. The data dictionary, however, is still at 19.3 until `datapatch` runs.
+
+---
+
+## 6. Run datapatch sanity checks
+
+```bash
+$ cd $ORACLE_HOME/OPatch
+$ ./datapatch -sanity_checks
+```
+
+```text
+SQL Patching sanity checks version 19.30.0.0.0 on Thu 07 May 2026 10:10:27 AM EDT
+
+Check: Database component status        - OK
+Check: PDB Violations                   - OK
+Check: Invalid System Objects           - OK
+Check: Tablespace Status                - OK
+Check: Backup jobs                      - OK
+Check: Temp file exists                 - OK
+Check: Temp file online                 - OK
+Check: Data Pump running                - OK
+Check: Container status                 - OK
+Check: Oracle Database Keystore         - OK
+Check: Dictionary statistics gathering  - OK
+Check: Scheduled Jobs                   - WARNING
+  There are jobs currently running or scheduled to be executed during next hour.
+  semst19:
+    | SCHEMA_NAME |       JOB_NAME        |   STATE   |            NEXT_RUN_DATE            |
+    |     SYS     |  CLEANUP_ONLINE_PMO   | SCHEDULED | 07-MAY-26 10.11.16 AM -04:00 |
+    |     SYS     | CLEANUP_TRANSIENT_PKG | SCHEDULED | 07-MAY-26 10.11.06 AM -04:00 |
+Check: GoldenGate triggers              - OK
+... (remaining checks all OK) ...
+```
+
+> ⚠️ **About the scheduled-jobs warning**
+> Running jobs during datapatch can cause locking and patch failures. For production, either wait until the next-hour window is clear, or temporarily disable the offending jobs:
+>
+> ```sql
+> EXEC DBMS_SCHEDULER.disable('SYS.CLEANUP_ONLINE_PMO');
+> EXEC DBMS_SCHEDULER.disable('SYS.CLEANUP_TRANSIENT_PKG');
+> -- ...run datapatch...
+> EXEC DBMS_SCHEDULER.enable('SYS.CLEANUP_ONLINE_PMO');
+> EXEC DBMS_SCHEDULER.enable('SYS.CLEANUP_TRANSIENT_PKG');
+> ```
+
+---
+
+## 7. Run datapatch
+
+```bash
+$ ./datapatch -verbose
+```
+
+```text
+SQL Patching tool version 19.30.0.0.0 Production on Thu May  7 10:11:01 2026
+
+Connecting to database...OK
+Gathering database info...done
+Bootstrapping registry and package to current versions...done
+Determining current state...done
+
+Current state of interim SQL patches:
+  No interim patches found
+
+Current state of release update SQL patches:
+  Binary registry:
+    19.30.0.0.0 Release_Update 260126024251: Installed
+  SQL registry:
+    Applied 19.3.0.0.0 Release_Update 190410122720 successfully on 24-APR-26 01.25.21.148429 PM
+
+Adding patches to installation queue and performing prereq checks...done
+Installation queue:
+  No interim patches need to be rolled back
+  Patch 38632161 (Database Release Update : 19.30.0.0.260120(REL-JAN260130) (38632161)):
+    Apply from 19.3.0.0.0 Release_Update 190410122720 to 19.30.0.0.0 Release_Update 260126024251
+  No interim patches need to be applied
+
+Installing patches...
+Patch installation complete.  Total patches installed: 1
+
+Validating logfiles...done
+Patch 38632161 apply: SUCCESS
+  logfile: /u01/oracle/cfgtoollogs/sqlpatch/38632161/28482211/38632161_apply_SEMST19_2026May07_10_12_23.log (no errors)
+SQL Patching tool complete on Thu May  7 10:24:39 2026
+```
+
+> 💡 **Multitenant note:** datapatch automatically iterates over all PDBs that are open `READ WRITE`. If you have a CDB, open every PDB before running datapatch, otherwise they'll be skipped and you'll need a second run.
+
+If invalid objects appear after patching, recompile them:
+
+```sql
+SQL> @?/rdbms/admin/utlrp.sql
+```
+
+---
+
+## 8. Verify
+
+### 8.1 Patch registry
+
+```sql
+SELECT TO_CHAR(action_time, 'YYYY-MM-DD HH24:MI:SS') AS action_time,
+       action,
+       status,
+       description,
+       patch_id
+FROM   sys.dba_registry_sqlpatch
+ORDER  BY action_time DESC;
+```
+
+```text
+ACTION_TIME          ACTION   STATUS   DESCRIPTION                                                                  PATCH_ID
+-------------------  -------  -------  ---------------------------------------------------------------------------  --------
+2026-05-07 10:23:56  APPLY    SUCCESS  Database Release Update : 19.30.0.0.260120(REL-JAN260130) (38632161)         38632161
+2026-04-24 13:25:21  APPLY    SUCCESS  Database Release Update : 19.3.0.0.190416 (29517242)                         29517242
+```
+
+### 8.2 Version banner
+
+```sql
+SQL> SELECT banner_full FROM v$version;
+
+BANNER_FULL
+--------------------------------------------------------------------------------
+Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production
+Version 19.30.0.0.0
+```
+
+### 8.3 OPatch lspatches
+
+```bash
+$ opatch lspatches
+38632161;Database Release Update : 19.30.0.0.260120(REL-JAN260130) (38632161)
+29585399;OCW RELEASE UPDATE 19.3.0.0.0 (29585399)
+```
+
+> 💡 **Why is OCW still at 19.3?**
+> The OCW (Oracle Clusterware) RU is bundled separately and is only updated via Grid Infrastructure patches. On a single-instance home like this one, that's expected and harmless.
+
+Don't forget to start the listener back up:
+
+```bash
+$ lsnrctl start
+```
+
+---
+
+## Notes and gotchas
+
+- **OPatch version matters.** Each RU specifies a minimum OPatch version in its README. Running with an old OPatch can silently misbehave — always update first if needed.
+- **RAC / Grid Infrastructure is different.** This procedure is for a single-instance home. For RAC or GI, use `opatchauto` for a rolling, zero-downtime patch.
+- **Backup the Oracle Home before `opatch apply`.** Restoring a tarball is far faster than reinstalling and re-patching.
+- **`datapatch -sanity_checks` is your friend.** Run it before `datapatch -verbose` — it catches scheduled jobs, invalid objects, and other things that derail a patch mid-run.
+- **Multitenant: open all PDBs `READ WRITE`** before running datapatch, or they'll be skipped.
+- **Run `utlrp.sql` if you see invalid objects** after patching to recompile them in parallel.
+- **Reference Doc IDs:**
+  - `2161861.1` — Post-patch actions for super-set patches
+  - `2975965.1` — Datapatch sanity checks reference
+
+---
+
+## Summary
+
+| Step | Action | Tool |
+|------|--------|------|
+| 1 | Conflict check | `opatch prereq` |
+| 2 | Backup | `tar` / RMAN |
+| 3 | Shutdown | `sqlplus`, `lsnrctl` |
+| 4 | Apply binary patch | `opatch apply` |
+| 5 | Start DB | `sqlplus` |
+| 6 | Sanity checks | `datapatch -sanity_checks` |
+| 7 | Apply SQL patches | `datapatch -verbose` |
+| 8 | Verify | `dba_registry_sqlpatch`, `v$version`, `opatch lspatches` |
+
+Total downtime for this run: **~40 minutes** (shutdown to verified open). Your mileage will vary with database size, number of PDBs, and how chatty your scheduled jobs are.
+
+---
+
+*Patched on May 7, 2026 — Oracle Database 19c Enterprise Edition, single instance, Linux x86-64.*
