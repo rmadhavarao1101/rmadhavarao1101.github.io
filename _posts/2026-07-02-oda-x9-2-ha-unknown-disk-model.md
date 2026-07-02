@@ -135,7 +135,7 @@ Look again at that "Before" XML block Oracle sent us. The very first entry in th
 
 That's *also* a 7.68 TB SSD — same capacity class as our unsupported Samsung drive — and 19.16 already knows it natively. In other words, a 7.68 TB SSD that works on 19.16 does exist; we just had the wrong revision in the shelf.
 
-Our hardware partner at **Eclipsys** ran this down and sourced disks carrying the **`MS9AC2DD2SUN7.6T`** label — the model 19.16 supports out of the box. We physically swapped them into the shelf, ran a clean `cleanup.pl`, and re-provisioned.
+Our hardware partner at **DSP-Eclipsys** ran this down and sourced disks carrying the **`MS9AC2DD2SUN7.6T`** label — the model 19.16 supports out of the box. We physically swapped them into the shelf, ran a clean `cleanup.pl`, and re-provisioned.
 
 This time storage discovery didn't just pass — it kept going all the way through the stack:
 
