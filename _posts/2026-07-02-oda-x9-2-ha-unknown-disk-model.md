@@ -138,7 +138,7 @@ The XML edit is a test, not a cure. It's genuinely useful for one thing: finding
 
 "New disk, old release" is a trap a lot of people are going to hit. Fresh ODAs come with current-revision drives, and plenty of us are stuck on older software for old database versions. When the disk and the database want opposite things, you've got three levers: push the database version up, decouple it from ODA (manual home on a newer release), or drop the disk revision down to something the old release supports. For us the disk swap was miles less painful than the manual-home route — no `compatible.rdbms` traps, nothing falling outside `odacli`.
 
-Your hardware partner might be the actual MVP. The winning move wasn't a clever command. It was someone knowing a supported-revision 7.68 TB SSD existed and getting it into our hands. Thanks Eclipsys.
+Your hardware partner might be the actual MVP. The winning move wasn't a clever command. It was someone knowing a supported-revision 7.68 TB SSD existed and getting it into our hands. Thanks to DSP-Eclipsys.
 
 And run `cleanup.pl -f` on both nodes between every single attempt. By the time storage fails, GI's already extracted and the users and networks exist, so a naked retry just trips over the leftovers.
 
