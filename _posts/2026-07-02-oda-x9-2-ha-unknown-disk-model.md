@@ -1,180 +1,147 @@
-# The 7.68 TB SSD That Wouldn't Provision: An ODA X9-2-HA vs. 12.1.0.2 Standoff
+# The disk was fine. The software just refused to believe it existed.
 
-We recently stood up a new **Oracle Database Appliance X9-2-HA** to host a legacy application whose databases are still on **Oracle 12.1.0.2**. What should have been a routine `create-appliance` turned into a three-week detour through disk metadata, an Oracle SR, a version catch-22, and — in the end — a physical disk swap. I'm writing it down because the "official" fix didn't actually work, and the thing that did work isn't obvious until you understand *why* the official fix failed.
+Field notes from a new ODA X9-2-HA that fought us for three weeks.
 
-If you're provisioning an X9-2-HA (or any DE3-24C-based ODA) with newer SSDs and you're pinned to an older ODA release, this one's for you.
+---
 
-## The setup
+We got a new Oracle Database Appliance X9-2-HA to replace an aging box. The plan was boring on purpose: image it at ODA 19.16, run `create-appliance`, move our 12.1.0.2 databases across, done.
 
-Two nodes, `testodanode01` / `testodanode02`, one shared DE3-24C shelf. We were deliberately deploying **ODA 19.16**, and that "deliberately" matters: our source databases are 12.1.0.2, and **19.16 is the last ODA release that ships the 12.1.0.2 clone** and supports provisioning 12.1 databases. Anything newer drops it. So 19.16 wasn't a lazy choice — it was a hard requirement handed to us by the application.
+It was not done. It wasn't done for three weeks.
 
-Provisioning ran fine right up until storage:
+Writing it up because the "official" fix Oracle handed us didn't actually work, and the thing that finally did isn't obvious until you understand why the official one failed. If you're standing up an X9-2-HA with recent disks while stuck on an older ODA release, maybe this saves you a couple of those weeks.
+
+## First, why we were on 19.16 at all
+
+This part is load-bearing, so bear with me.
+
+Our source databases are 12.1.0.2. And 19.16 happens to be the *last* ODA release that ships a 12.1.0.2 clone — after that Oracle drops it, and `odacli` won't provision a 12.1 database, full stop. So 19.16 wasn't laziness or "we hadn't gotten around to patching." The application pinned us there. Remember that, because it turns into the whole problem later.
+
+## Where it broke
+
+Networks, users, GI clone extraction — all green. Then storage:
 
 ```
 odacli describe-job -i 36f4db14-...
-
 Status:  Failure
-Message: DCS-10001:Internal error encountered: OAK-10005:Disk with unknown
-         model number 'MSCAC2DD2ORA7.6T' found on the system. Cause: Failed
-         to match above model number with any model number in oakMetadata.
-         Action: Check product documentation for supported disk models.
-
+Message: OAK-10005: Disk with unknown model number 'MSCAC2DD2ORA7.6T' found on
+         the system. Failed to match above model number with any model number
+         in oakMetadata.
 ...
-Grid home creation            ...  Success
-Extract GI clone              ...  Success
-Storage discovery             ...  Failure
-Discovering DiskGroup         ...  Failure
+Extract GI clone      ...  Success
+Storage discovery     ...  Failure
+Discovering DiskGroup ...  Failure
 ```
 
-Everything up to and including the GI clone extraction succeeded. It died the moment `oakd` tried to enumerate the shelf disks. The culprit is right there in the message: a disk model string, **`MSCAC2DD2ORA7.6T`**, that OAK doesn't recognize.
+June 3rd. First failure. The message is doing you a favor if you actually read it: it names the exact disk model that's the problem — `MSCAC2DD2ORA7.6T`.
 
-## What the error actually means
+The disks themselves were completely fine, by the way. Both shelf expanders were happy (`fwr_exp_util` showed the Primary and Secondary IOMs of the DE3-24C, both named "E0"), and `odaadmcli show storage` listed six Samsung 7.68 TB SSDs sitting in slots 24–29. Nothing wrong with the hardware. ODA just didn't recognize the part number.
 
-ODA keeps a list of the disk models it knows how to handle in a metadata config file. On an X9 that file is:
+## What OAK-10005 is really telling you
+
+ODA carries a list of disk models it knows how to deal with, in an XML config. On an X9 it's here:
 
 ```
 /opt/oracle/oak/conf/oakMetadataConf_X9.xml
 ```
 
-When `create-appliance` gets to storage discovery, `oakd` reads the model string off every physical disk and checks it against the `SsdDiskModelSupported` list in that XML. If the disk reports a model that isn't on the list, OAK refuses to claim it and throws OAK-10005.
+During storage discovery `oakd` reads the model string off each disk and checks it against the `SsdDiskModelSupported` list in that file. Our disk's string wasn't in the list. That's the entire cause of OAK-10005 — the disks were a newer manufacturing revision than 19.16's metadata had ever heard of.
 
-We confirmed the disks were physically healthy and visible — the SAS paths and both shelf expanders were fine:
+## The fix Oracle gave us (spoiler: it wasn't enough)
 
-```
-fwr_exp_util list
-0 Controller [/SYS/MB/PCIE9/SAS2] => Expander[... Secondary ... "E0"]
-1 Controller [/SYS/MB/PCIE2/SAS3] => Expander[... Primary   ... "E0"]
-```
-
-and `odaadmcli show storage` (when `oakd` was up) showed six Samsung 7.68 TB SSDs:
-
-```
-Total number of PDs: 24
-  /dev/sdc  SAMSUNG  SSD  7681gb  slot: 24  exp: 2  MSCAC2DD2ORA7.6T
-  /dev/sdd  SAMSUNG  SSD  7681gb  slot: 25  exp: 2  MSCAC2DD2ORA7.6T
-  ... (six disks, slots 24-29)
-```
-
-So the hardware was fine. This was purely a *software doesn't recognize this part number* problem. The disks were a newer manufacturing revision than 19.16's metadata baseline knew about.
-
-## The "official" fix — which didn't hold
-
-We opened an SR, and Oracle came back with a clean-sounding action plan: just add the missing model string to the supported list. Their steps:
-
-1. Back up `/opt/oracle/oak/conf/oakMetadataConf_X9.xml` on **both** nodes.
-2. `chmod 644` the file to make it writable.
-3. Add the new model under `SsdDiskModelSupported` — there are **two** sections in the file, both need it:
+Opened an SR. Oracle came back quickly with a tidy-looking plan — just add the model string to the allow-list. Back up the XML on both nodes, `chmod 644`, add one line, `chmod 444`, cleanup, retry:
 
 ```xml
-<!-- Before -->
 <SsdDiskModelSupported ...>
-  <Description>SSD disk model supported by OAK</Description>
   <Value>MS9AC2DD2SUN7.6T</Value>
   <Value>HPCAC2DH2ORA7.6T</Value>
   <Value>HPSAC2DH2ORA7.6T</Value>
-</SsdDiskModelSupported>
-
-<!-- After -->
-<SsdDiskModelSupported ...>
-  <Description>SSD disk model supported by OAK</Description>
-  <Value>MS9AC2DD2SUN7.6T</Value>
-  <Value>HPCAC2DH2ORA7.6T</Value>
-  <Value>HPSAC2DH2ORA7.6T</Value>
-  <Value>MSCAC2DD2ORA7.6T</Value>   <!-- our disk -->
+  <Value>MSCAC2DD2ORA7.6T</Value>   <!-- the line we added -->
 </SsdDiskModelSupported>
 ```
 
-4. `chmod 444` to restore permissions.
-5. `perl /opt/oracle/oak/onecmd/cleanup.pl -f` on both nodes, then re-provision.
+(Watch out — there are *two* of these blocks in the file. Both need the edit.)
 
-On paper this is airtight: the model string is the only thing missing, so add it and move on. We did exactly that, cleaned up, and re-ran `create-appliance`.
-
-It got *further*. And then it failed differently:
+Made the change on both nodes, ran `cleanup.pl -f`, kicked off `create-appliance` again. And it got further! Then it fell over somewhere new:
 
 ```
 odacli describe-job -i d1c94360-...
-
 Status:  Failure
-Message: DCS-10001:Internal error encountered: OAK-10029:Fail to validate
-         the correct number of disk partitions. Cause: OAK failed to create
-         a disk partition on one or more disks. Action: Run cleanup and retry
-         again. If issues persist contact Oracle support.
-
-Storage discovery      ...  Failure
-Discovering DiskGroup  ...  Failure
+Message: OAK-10029: Fail to validate the correct number of disk partitions.
+         OAK failed to create a disk partition on one or more disks.
 ```
 
-This is the important moment, so it's worth being precise about it. The metadata edit **worked** — OAK-10005 was gone, the model was accepted, and discovery moved past name-matching into *partitioning* the disks. But partitioning then failed with OAK-10029.
+June 4th. Different error, same wall.
 
-The lesson: **adding a model to the XML allow-list is necessary but not sufficient.** Recognizing a disk's name is one thing; correctly partitioning it needs the deeper storage layers to actually understand that specific drive's geometry and characteristics. Whitelisting the string got us past the bouncer at the door and straight into a wall we couldn't edit our way through. The metadata file is text; the layer that failed next isn't.
+This is the bit worth slowing down for. The edit *did* do something — OAK-10005 was gone, the model got accepted, discovery walked right past the name check and into partitioning the disks. And then partitioning died.
 
-## The real problem: a version catch-22
+So here's what that sequence actually tells you: getting the name onto the allow-list is necessary, but nowhere near sufficient. Recognizing a disk by its string is one thing. Laying down partitions on it correctly needs the layers underneath to genuinely understand that drive — and those layers aren't in a text file you can edit. We'd talked our way past the front door and hit a wall in the next room. You can't `vi` your way through that one.
 
-Back on the phone with Oracle, the picture got clear — and uncomfortable:
+Which, honestly, we should have half-expected. If a config edit were all it took, the disk wouldn't need a newer ODA release in the first place.
 
-- The `MSCAC2DD2ORA7.6T` SSD is **only supported from ODA 19.18 onward.** Full stop. 19.16 will never partition it correctly, no matter what you put in the XML.
-- But our databases are **12.1.0.2**, which is **only available in ODA 19.16 and earlier.**
+## The actual problem: two requirements that don't overlap
 
-Read those two lines together and you have a genuine standoff:
+Back on the phone with Oracle, and now it got clear and kind of annoying:
 
-> The **disk** needs 19.18 or newer.
-> The **database** needs 19.16 or older.
-> On this hardware, as-shipped, those two requirements don't overlap.
+- `MSCAC2DD2ORA7.6T` is supported from **ODA 19.18 onward.** Not before. No amount of XML edits changes that.
+- Our databases are **12.1.0.2**, which only exists on ODA **19.16 and earlier.**
 
-Oracle's suggestion was to go to 19.18 and then install a 12.1.0.2 home manually, outside `odacli`, against the 19c Grid Infrastructure. That's a legitimate, supported path (19c GI does support 12.1 databases) — but it's a lot of manual surface area: node pinning, a software-only 12.1 home, ASM disk-group compatibility to worry about (`compatible.rdbms` is irreversible!), and databases that `odacli` will never see or manage. Workable, but heavy.
+Sit those two facts next to each other:
 
-We wanted a way to keep the appliance fully ODA-managed on 19.16. Which meant the version constraint had to give somewhere — and the one place it could give was the **hardware**.
+- disk wants 19.18+
+- database wants 19.16 or older
 
-## The fix that actually worked: swap the disks
+There's no version that satisfies both. On this hardware, as it shipped, you can't have the disk and the database happy at the same time.
 
-Look again at that "Before" XML block Oracle sent us. The very first entry in the already-supported list is:
+Oracle's out was to go to 19.18 and install the 12.1.0.2 home by hand, outside `odacli`, against the 19c Grid Infrastructure. That's real and supported — 19c GI does run 12.1 databases — but it's a pile of manual work: pin the cluster nodes, build a software-only 12.1 home yourself, sweat the ASM `compatible.rdbms` attribute (which you can never lower once it's set), and end up with databases `odacli` doesn't know exist. Doable. Not what we wanted for a box that's supposed to be appliance-managed.
+
+We wanted to stay on 19.16, fully ODA-managed. So the version conflict had to break somewhere, and the only piece with any give left was the hardware itself.
+
+## The fix that worked: change the disks, not the config
+
+Go back and look at the "before" list Oracle sent us. First entry, already supported:
 
 ```
 <Value>MS9AC2DD2SUN7.6T</Value>
 ```
 
-That's *also* a 7.68 TB SSD — same capacity class as our unsupported Samsung drive — and 19.16 already knows it natively. In other words, a 7.68 TB SSD that works on 19.16 does exist; we just had the wrong revision in the shelf.
+That's *also* a 7.68 TB SSD. Same capacity, different revision — and 19.16 already knows it natively. Meaning: a 7.68 TB drive that works on 19.16 exists. We just had the wrong flavor of it in the shelf.
 
-Our hardware partner at **DSP-Eclipsys** ran this down and sourced disks carrying the **`MS9AC2DD2SUN7.6T`** label — the model 19.16 supports out of the box. We physically swapped them into the shelf, ran a clean `cleanup.pl`, and re-provisioned.
+Our hardware guy at Eclipsys chased this down and got us disks labelled `MS9AC2DD2SUN7.6T` — the model 19.16 supports out of the box. Swapped them into the enclosure, ran a clean `cleanup.pl -f`, re-provisioned.
 
-This time storage discovery didn't just pass — it kept going all the way through the stack:
+June 23rd. This time it just... kept going:
 
 ```
 odacli describe-job -i 9379ae94-...
-
 Status:  Success
 
-Storage discovery             ...  Success
-Grid stack creation           ...  Success
-Disk group 'RECO' creation    ...  Success
-Register Scan and Vips ...     ...  Success
-ACFS File system 'DATA' ...    ...  Success
+Storage discovery              ...  Success
+Grid stack creation            ...  Success
+Disk group 'RECO' creation     ...  Success
+ACFS File system 'DATA' ...     ...  Success
 Restart Zookeeper and DCS Agent ... Success
 ```
 
-Clean success on **19.16** — appliance fully deployed, GI up, disk groups created, SCAN and VIPs registered. And the thing we did all of this to protect was right there waiting for us:
+Full clean deploy on 19.16. And the whole reason we put ourselves through this was sitting right there:
 
 ```
 odacli list-availablepatches
-
-ODA Release Version  Supported DB Versions    Available DB Versions   Supported Platforms
-19.16.0.0.0          12.1.0.2.220719          12.1.0.2.220719         Bare Metal
+19.16.0.0.0   12.1.0.2.220719   12.1.0.2.220719   Bare Metal
 ```
 
-`12.1.0.2.220719` available on bare metal. Exactly what we needed.
+12.1.0.2 available on bare metal. Which is all we ever wanted.
 
-## What I'd tell the next person
+## Things I know now that I didn't three weeks ago
 
-**The model string in the error is the whole story — read it literally.** OAK-10005 names the exact disk model that isn't supported. Don't go chasing cabling, expanders, or controllers; check that specific string against `SsdDiskModelSupported` in `oakMetadataConf_X9.xml`.
+Read the model string in the OAK-10005 message and take it at face value. It's naming the disk that isn't supported. Don't go poking at cables or expanders — check that one string against `SsdDiskModelSupported` and you've basically diagnosed it.
 
-**Editing the XML is a diagnostic, not a cure.** It'll tell you whether name-matching is your *only* problem. If you edit it and provisioning dies at a *different* step (for us, OAK-10029 partition validation), that's your signal the disk genuinely isn't supported on that release and no amount of config editing will save you. Treat the metadata hack as a probe, and don't ship a hand-edited metadata file into production — it gets wiped by the next reimage or patch anyway.
+The XML edit is a test, not a cure. It's genuinely useful for one thing: finding out whether name-matching is your *only* problem. Edit it, retry, and if you die at a different step — for us, OAK-10029 partitioning — that's your answer. The disk isn't really supported on this release and config surgery won't save you. Also, don't leave a hand-edited metadata file on a production box; the next reimage or patch wipes it anyway.
 
-**"Supported from 19.18" and "12.1.0.2 only on ≤19.16" is a real, common trap.** Newer ODAs ship with current-revision disks, but plenty of us are pinned to older releases for old database versions. When the disk and the database pull in opposite directions, you have three levers: move the database version up, decouple the DB from ODA tooling (manual home on a newer release), or move the *disk* revision down to one the older release supports. For us, the disk swap was by far the least invasive — no manual homes, no `compatible.rdbms` landmines, no loss of `odacli` management.
+"New disk, old release" is a trap a lot of people are going to hit. Fresh ODAs come with current-revision drives, and plenty of us are stuck on older software for old database versions. When the disk and the database want opposite things, you've got three levers: push the database version up, decouple it from ODA (manual home on a newer release), or drop the disk revision down to something the old release supports. For us the disk swap was miles less painful than the manual-home route — no `compatible.rdbms` traps, nothing falling outside `odacli`.
 
-**Lean on your hardware partner.** The winning move here wasn't a clever command — it was knowing that a supported-revision 7.68 TB SSD existed and getting hold of it. Our Eclipsys contact turning up `MS9AC2DD2SUN7.6T` drives is what closed this out.
+Your hardware partner might be the actual MVP. The winning move wasn't a clever command. It was someone knowing a supported-revision 7.68 TB SSD existed and getting it into our hands. Thanks Eclipsys.
 
-**Always `cleanup.pl` between attempts.** By the time storage fails, GI is already extracted and users/networks exist. A straight retry trips over that partial state. `perl /opt/oracle/oak/onecmd/cleanup.pl -f` on both nodes, every time, before the next run.
+And run `cleanup.pl -f` on both nodes between every single attempt. By the time storage fails, GI's already extracted and the users and networks exist, so a naked retry just trips over the leftovers.
 
 ---
 
-*Environment: ODA X9-2-HA, ODA software 19.16, Oracle Linux 7.9, target database 12.1.0.2. Internal management addresses and identifiers have been genericized. Your mileage — and your disk revisions — may vary.*
+*ODA X9-2-HA, ODA 19.16, OL 7.9, target DB 12.1.0.2. Internal addresses and IDs genericized. Your disk revisions may not match mine — that's kind of the whole point.*
