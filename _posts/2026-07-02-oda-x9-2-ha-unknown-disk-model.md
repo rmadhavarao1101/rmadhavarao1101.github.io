@@ -1,6 +1,6 @@
 # The 7.68 TB SSD That Wouldn't Provision: An ODA X9-2-HA vs. 12.1.0.2 Standoff
 
-We recently stood up a new **Oracle Database Appliance X9-2-HA** to host a legacy application whose databases are still on **Oracle 12.1.0.2**. What should have been a routine `create-appliance` turned into a three-week detour through disk metadata, an Oracle SR, a version catch-22, and — in the end — a physical disk swap. I'm writing it down because the "official" fix didn't actually work, and the thing that did work isn't obvious until you understand *why* the official fix failed.
+We recently stood up a new **Oracle Database Appliance X9-2-HA** to host a legacy application whose databases are still on **Oracle 12.1.0.2**. What should have been a routine `create-appliance` turned into a three-week detour through disk metadata, an Oracle SR, a version catch-22, and — in the end — a physical disk swap. 
 
 If you're provisioning an X9-2-HA (or any DE3-24C-based ODA) with newer SSDs and you're pinned to an older ODA release, this one's for you.
 
