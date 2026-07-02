@@ -6,7 +6,7 @@ If you're provisioning an X9-2-HA (or any DE3-24C-based ODA) with newer SSDs and
 
 ## The setup
 
-Two nodes, `scodanode01` / `scodanode02`, one shared DE3-24C shelf. We were deliberately deploying **ODA 19.16**, and that "deliberately" matters: our source databases are 12.1.0.2, and **19.16 is the last ODA release that ships the 12.1.0.2 clone** and supports provisioning 12.1 databases. Anything newer drops it. So 19.16 wasn't a lazy choice — it was a hard requirement handed to us by the application.
+Two nodes, `testodanode01` / `testodanode02`, one shared DE3-24C shelf. We were deliberately deploying **ODA 19.16**, and that "deliberately" matters: our source databases are 12.1.0.2, and **19.16 is the last ODA release that ships the 12.1.0.2 clone** and supports provisioning 12.1 databases. Anything newer drops it. So 19.16 wasn't a lazy choice — it was a hard requirement handed to us by the application.
 
 Provisioning ran fine right up until storage:
 
