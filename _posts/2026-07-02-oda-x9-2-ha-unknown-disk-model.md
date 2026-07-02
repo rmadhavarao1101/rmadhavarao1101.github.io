@@ -61,7 +61,7 @@ So the hardware was fine. This was purely a *software doesn't recognize this par
 
 We opened an SR, and Oracle came back with a clean-sounding action plan: just add the missing model string to the supported list. Their steps:
 
-1. Back up `oakMetadataConf_X9.xml` on **both** nodes.
+1. Back up `/opt/oracle/oak/conf/oakMetadataConf_X9.xml` on **both** nodes.
 2. `chmod 644` the file to make it writable.
 3. Add the new model under `SsdDiskModelSupported` — there are **two** sections in the file, both need it:
 
