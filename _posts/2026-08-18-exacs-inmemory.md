@@ -1,4 +1,4 @@
-# Enabling Database In-Memory on Exadata: a 16-second query that became 0.12
+# Enabling Database In-Memory on Exacs: a 16-second query that became 0.12
 
 > Oracle 19c EE (Extreme Performance) 19.29 · two-node Exadata Database Service (ExaDB-D) · ~40M-row table · `GROUP BY` benchmark
 
