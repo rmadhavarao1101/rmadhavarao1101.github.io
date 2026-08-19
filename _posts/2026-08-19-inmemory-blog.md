@@ -321,11 +321,11 @@ SQL> SELECT guid, COUNT(*) FROM test.usr
 
 GUID                                        COUNT(*)
 ------------------------------------------ ----------
-fab2331d92734fa6ae2fd0bbebcf3317              191161
-ed300885771048e2b160d3994f0d7f9d              167021
-b0a2cf1aa5f540a09c78913fdf35ce37              152625
-2360da1416294137b4a466a17679bc45              143081
-e4d94360bce142cb9bb96d3c9724d0c2              143019
+fab233testtesttesttesttesttf3317              191161
+ed3008testtesttesttesttesttd7f9d              167021
+b0a2cftesttesttesttesttestt5ce37              152625
+2360datesttesttesttesttestt9bc45              143081
+e4d943testtesttesttesttestt4d0c2              143019
 ... (20 rows selected) ...
 
 Elapsed: 00:00:16.66
@@ -341,9 +341,9 @@ SQL> SELECT guid, COUNT(*) FROM test.usr
 
 GUID                                        COUNT(*)
 ------------------------------------------ ----------
-fab2331d92734fa6ae2fd0bbebcf3317              191161
-ed300885771048e2b160d3994f0d7f9d              167021
-b0a2cf1aa5f540a09c78913fdf35ce37              152625
+fab233testtesttesttesttesttf3317              191161
+ed3008testtesttesttesttesttd7f9d              167021
+b0a2cftesttesttesttesttestt5ce37              152625
 ... (20 rows selected) ...
 
 Elapsed: 00:00:00.13
