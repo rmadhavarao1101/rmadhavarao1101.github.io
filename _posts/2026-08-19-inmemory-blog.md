@@ -372,7 +372,7 @@ Two child cursors under one SQL_ID — child 0 is the row-store plan, child 1 is
 <details>
 <summary><b>Child 0 — the baseline (row store), full plan</b></summary>
 
-```text
+```sql
 SQL_ID  5yhfz6c434szd, child number 0
 -------------------------------------
 SELECT guid, COUNT(*) FROM test.usr GROUP BY guid ORDER BY 2
@@ -410,7 +410,7 @@ Note
 <details open>
 <summary><b>Child 1 — In-Memory, full plan</b></summary>
 
-```text
+```sql
 SQL_ID  5yhfz6c434szd, child number 1
 -------------------------------------
 SELECT guid, COUNT(*) FROM test.usr GROUP BY guid ORDER BY 2
