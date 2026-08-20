@@ -369,7 +369,7 @@ SQL_ID        CHILD_NUMBER        SEC
 
 Two child cursors under one SQL_ID — child 0 is the row-store plan, child 1 is In-Memory.
 
-<details>
+
 <summary><b>Child 0 — the baseline (row store), full plan</b></summary>
 
 ```sql
@@ -405,7 +405,7 @@ Note
    - Degree of Parallelism is 4 because of session
 ```
 
-</details>
+
 
 
 <summary><b>Child 1 — In-Memory, full plan</b></summary>
