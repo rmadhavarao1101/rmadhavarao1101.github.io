@@ -407,7 +407,7 @@ Note
 
 </details>
 
-<details open>
+
 <summary><b>Child 1 — In-Memory, full plan</b></summary>
 
 ```sql
@@ -443,7 +443,7 @@ Note
    - Degree of Parallelism is 4 because of session
 ```
 
-</details>
+
 
 There's the whole story in two lines of plan output: the baseline reads `INDEX STORAGE FAST FULL SCAN` on `IDX_USER_DEVICE1`; the In-Memory run reads `TABLE ACCESS INMEMORY FULL` on `USR`. And the top-line `Buffers` on the in-memory plan is **19**. Nineteen. The query only needed the `guid` column, so that's all it read.
 
