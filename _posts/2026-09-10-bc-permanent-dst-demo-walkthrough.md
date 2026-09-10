@@ -1,4 +1,4 @@
-# What BC's Permanent Clock Change Did to My Demo Database, One Output at a Time
+# What BC's Permanent Clock Change Did to My Demo OCI DBCS Database, One Output at a Time
 
 I want to walk through this the way it actually happened, output by output, because the whole story is sitting in the outputs. If you run Oracle on a British Columbia host you are going to want to run the same handful of checks, and it really helps to know what each line is telling you before you panic or relax.
 
